@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import os
+
+content = r"""import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { patientAPI, predictAPI } from '../api/endpoints'
@@ -22,7 +24,7 @@ const IcoShield = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="no
 const IcoTarget = () => <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
 const IcoChat  = () => <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 const IcoWave  = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-const IcoUser  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+const IcoUser  = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 
 const RiskGauge = ({ probability, risk_level }) => {
   const pct = Math.round((probability || 0) * 100)
@@ -58,7 +60,7 @@ const StatCard = ({ label, value, unit, color, icon }) => (
 const Tip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{background:'#1A2332',borderRadius:10,padding:'8px 14px',color:'#fff',fontSize:13}}>
+    <div style={{background:'#1A2332',borderRadius:10,padding:'8px 14px',color:'#fff',fontSize:13,boxShadow:'0 4px 12px rgba(0,0,0,0.2)'}}>
       <div style={{color:'#8B9BB4',fontSize:11,marginBottom:2}}>{payload[0]?.payload?.time}</div>
       <div style={{fontWeight:700,color:C.green}}>{payload[0].value} mmol/L</div>
     </div>
@@ -119,8 +121,8 @@ export default function PatientDashboard() {
             {user?.full_name?.[0]?.toUpperCase()}
           </div>
           <span style={{fontSize:13,fontWeight:600,color:C.text,marginRight:4}}>{user?.full_name}</span>
-          <button onClick={() => navigate('/profile')}
-            style={{padding:'6px 14px',background:'#00C48C18',color:'#00C48C',border:'1px solid #00C48C40',borderRadius:7,fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:5}}>
+          <button onClick={()=>navigate('/profile')}
+            style={{padding:'6px 14px',background:C.green+'18',color:C.green,border:'1px solid '+C.green+'40',borderRadius:7,fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:5}}>
             <IcoUser/>Edit Profile
           </button>
           <button onClick={logout}
@@ -132,6 +134,9 @@ export default function PatientDashboard() {
 
       {msg.text && (
         <div style={{position:'fixed',top:72,right:24,zIndex:200,background:msg.type==='err'?C.red:C.green,color:'#fff',padding:'11px 18px',borderRadius:10,fontSize:13,fontWeight:600,boxShadow:'0 4px 16px rgba(0,0,0,0.15)',display:'flex',alignItems:'center',gap:8}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            {msg.type==='err' ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></> : <polyline points="20 6 9 17 4 12"/>}
+          </svg>
           {msg.text}
         </div>
       )}
@@ -183,7 +188,7 @@ export default function PatientDashboard() {
                           color:f.direction==='increase' ? C.red : C.green,
                           background:f.direction==='increase' ? '#FF6B6B14' : '#00C48C14',
                           padding:'3px 11px',borderRadius:20}}>
-                          {f.direction==='increase' ? 'Risk factor' : 'Protective'}
+                          {f.direction==='increase' ? '▲ Risk factor' : '▼ Protective'}
                         </span>
                       </div>
                     ))}
@@ -323,3 +328,9 @@ export default function PatientDashboard() {
     </div>
   )
 }
+"""
+
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PatientDashboard.jsx')
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(content)
+print('PatientDashboard.jsx written to:', path)

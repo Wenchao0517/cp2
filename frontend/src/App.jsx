@@ -5,10 +5,11 @@ import Register from './pages/Register'
 import Disclaimer from './pages/Disclaimer'
 import PatientDashboard from './pages/PatientDashboard'
 import ClinicianDashboard from './pages/ClinicianDashboard'
+import ProfileSetup from './pages/ProfileSetup'
 
 function ProtectedRoute({ children, role }) {
   const { user, loading } = useAuth()
-  if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh'}}>Loading...</div>
+  if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',fontFamily:'sans-serif',color:'#6B7A8F'}}>Loading...</div>
   if (!user) return <Navigate to="/login" />
   if (!user.consent_accepted) return <Navigate to="/disclaimer" />
   if (role && user.role !== role) return <Navigate to="/" />
@@ -17,12 +18,10 @@ function ProtectedRoute({ children, role }) {
 
 function HomeRedirect() {
   const { user, loading } = useAuth()
-  if (loading) return <div>Loading...</div>
+  if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',fontFamily:'sans-serif',color:'#6B7A8F'}}>Loading...</div>
   if (!user) return <Navigate to="/login" />
   if (!user.consent_accepted) return <Navigate to="/disclaimer" />
-  return user.role === 'doctor'
-    ? <Navigate to="/clinician" />
-    : <Navigate to="/dashboard" />
+  return user.role === 'doctor' ? <Navigate to="/clinician" /> : <Navigate to="/dashboard" />
 }
 
 export default function App() {
@@ -34,12 +33,9 @@ export default function App() {
           <Route path="/login"      element={<Login />} />
           <Route path="/register"   element={<Register />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
-          <Route path="/dashboard"  element={
-            <ProtectedRoute role="patient"><PatientDashboard /></ProtectedRoute>
-          }/>
-          <Route path="/clinician"  element={
-            <ProtectedRoute role="doctor"><ClinicianDashboard /></ProtectedRoute>
-          }/>
+          <Route path="/dashboard"  element={<ProtectedRoute role="patient"><PatientDashboard /></ProtectedRoute>}/>
+          <Route path="/profile"    element={<ProtectedRoute role="patient"><ProfileSetup /></ProtectedRoute>}/>
+          <Route path="/clinician"  element={<ProtectedRoute role="doctor"><ClinicianDashboard /></ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
