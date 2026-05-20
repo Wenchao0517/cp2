@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+﻿from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
 from ..extensions import db
 from ..models.patient import Patient
@@ -84,3 +84,18 @@ def get_assessments():
     assessments = RiskAssessment.query.filter_by(patient_id=patient.id)\
                   .order_by(RiskAssessment.created_at.desc()).limit(10).all()
     return jsonify({"assessments": [a.to_dict() for a in assessments]}), 200
+
+@patients_bp.route('/glucose/<int:reading_id>', methods=['DELETE'])
+@patient_required
+def delete_glucose(reading_id):
+    user_id = get_jwt_identity()
+    from ..models.user import User
+    user = User.query.get(user_id)
+    reading = GlucoseReading.query.filter_by(id=reading_id, patient_id=user.patient_profile.id).first()
+    if not reading:
+        return jsonify({'error': 'Not found'}), 404
+    db.session.delete(reading)
+    db.session.commit()
+    log_action(user_id, 'glucose.delete', f'reading/{reading_id}')
+    return jsonify({'message': 'Deleted'}), 200
+

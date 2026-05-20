@@ -14,6 +14,7 @@ export const patientAPI = {
   addGlucose:    (data) => api.post('/api/patients/glucose', data),
   getGlucose:    (limit=30) => api.get('/api/patients/glucose', { params: { limit } }),
   getAssessments:()     => api.get('/api/patients/assessments'),
+  deleteGlucose: (id)   => api.delete('/api/patients/glucose/' + id),
 }
 
 export const predictAPI = {
@@ -27,3 +28,4 @@ export const clinicianAPI = {
   getStats:         ()     => api.get('/api/clinician/stats'),
   assignPatient:    (id)   => api.post('/api/clinician/assign/' + id),
 }
+

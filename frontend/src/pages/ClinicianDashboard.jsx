@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { clinicianAPI } from '../api/endpoints'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 const C = {
   green:'#00C48C', red:'#FF6B6B', yellow:'#FFB020', blue:'#3B82F6',
@@ -38,6 +39,16 @@ const StatCard = ({ label, value, color, icon, sub }) => (
   </div>
 )
 
+const GlucoseTip = ({ active, payload }) => {
+  if (!active||!payload?.length) return null
+  return (
+    <div style={{background:'#1A2332',borderRadius:10,padding:'8px 14px',color:'#fff',fontSize:13}}>
+      <div style={{color:'#aaa',fontSize:11}}>{payload[0]?.payload?.time}</div>
+      <div style={{fontWeight:700,color:C.green}}>{payload[0].value} mmol/L</div>
+    </div>
+  )
+}
+
 export default function ClinicianDashboard() {
   const { user, logout } = useAuth()
   const [patients, setPatients] = useState([])
@@ -47,6 +58,7 @@ export default function ClinicianDashboard() {
   const [filter, setFilter]     = useState('')
   const [search, setSearch]     = useState('')
   const [loading, setLoading]   = useState(false)
+  const [detailTab, setDetailTab] = useState('overview')
 
   useEffect(() => {
     clinicianAPI.getPatients().then(r => setPatients(r.data.patients))
@@ -55,7 +67,7 @@ export default function ClinicianDashboard() {
 
   const viewPatient = async (id) => {
     if (selected === id) { setSelected(null); setDetail(null); return }
-    setLoading(true); setSelected(id)
+    setLoading(true); setSelected(id); setDetailTab('overview')
     const r = await clinicianAPI.getPatientDetail(id)
     setDetail(r.data); setLoading(false)
   }
@@ -70,6 +82,22 @@ export default function ClinicianDashboard() {
 
   const d = stats?.risk_distribution || {}
   const highCount = (d.high||0) + (d.very_high||0)
+
+  const chartData = detail?.readings
+    ? [...detail.readings].reverse().map((r,i) => ({
+        name: '#'+(i+1),
+        glucose: r.glucose_mmol,
+        time: r.measured_at?.slice(5,16).replace('T',' ')
+      }))
+    : []
+
+  const avgGlucose = detail?.readings?.length
+    ? (detail.readings.reduce((s,r)=>s+r.glucose_mmol,0)/detail.readings.length).toFixed(1)
+    : '--'
+  const maxGlucose = detail?.readings?.length
+    ? Math.max(...detail.readings.map(r=>r.glucose_mmol))
+    : '--'
+  const highAlerts = detail?.readings?.filter(r=>r.glucose_mmol>10).length || 0
 
   return (
     <div style={{minHeight:'100vh',background:C.bg,fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'}}>
@@ -130,7 +158,6 @@ export default function ClinicianDashboard() {
             <div style={{maxHeight:'calc(100vh - 340px)',overflowY:'auto'}}>
               {filtered.length === 0 ? (
                 <div style={{textAlign:'center',padding:'40px 20px',color:C.muted}}>
-                  <div style={{color:C.border,marginBottom:8}}><IcoUsers/></div>
                   <p style={{fontSize:13,margin:0}}>No patients found</p>
                 </div>
               ) : filtered.map(p => (
@@ -195,7 +222,17 @@ export default function ClinicianDashboard() {
                   </div>
                 </div>
 
-                {detail.assessments?.[0]?.recommendation && (
+                <div style={{display:'flex',gap:4,background:C.card,border:'1px solid '+C.border,borderRadius:12,padding:4,width:'fit-content'}}>
+                  {[['overview','Overview'],['chart','📈 Glucose Chart'],['readings','📋 Readings']].map(([k,l])=>(
+                    <button key={k} onClick={()=>setDetailTab(k)}
+                      style={{padding:'7px 16px',borderRadius:9,border:'none',cursor:'pointer',fontSize:13,fontWeight:600,
+                        background:detailTab===k?C.blue:'transparent',color:detailTab===k?'#fff':C.muted,transition:'all 0.2s'}}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+
+                {detailTab==='overview' && detail.assessments?.[0]?.recommendation && (
                   <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
                     <h3 style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:12,display:'flex',alignItems:'center',gap:7}}>
                       <span style={{color:C.yellow}}><IcoBulb/></span> Latest AI Recommendation
@@ -208,38 +245,69 @@ export default function ClinicianDashboard() {
                   </div>
                 )}
 
-                <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden'}}>
-                  <div style={{padding:'14px 22px',borderBottom:'1px solid '+C.border,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <h3 style={{fontSize:14,fontWeight:700,color:C.text,margin:0}}>Glucose Readings</h3>
-                    <span style={{fontSize:11,color:C.muted,background:C.bg,padding:'2px 10px',borderRadius:20,border:'1px solid '+C.border}}>{detail.readings?.length||0} records</span>
+                {detailTab==='chart' && (
+                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                      <h3 style={{fontSize:14,fontWeight:700,color:C.text,margin:0}}>📈 Glucose Trend</h3>
+                      <div style={{display:'flex',gap:16,fontSize:12,color:C.muted}}>
+                        <span>Avg: <strong style={{color:C.blue}}>{avgGlucose} mmol/L</strong></span>
+                        <span>Max: <strong style={{color:C.red}}>{maxGlucose} mmol/L</strong></span>
+                        <span>High alerts: <strong style={{color:C.red}}>{highAlerts}</strong></span>
+                      </div>
+                    </div>
+                    {chartData.length > 1 ? (
+                      <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                          <XAxis dataKey="time" tick={{fontSize:10,fill:C.muted}} tickLine={false}/>
+                          <YAxis domain={[2,30]} tick={{fontSize:10,fill:C.muted}} tickLine={false} axisLine={false} unit=" mmol" width={60}/>
+                          <Tooltip content={<GlucoseTip/>}/>
+                          <ReferenceLine y={10} stroke={C.red} strokeDasharray="4 4" label={{value:'High',fontSize:10,fill:C.red,position:'right'}}/>
+                          <ReferenceLine y={3.9} stroke={C.yellow} strokeDasharray="4 4" label={{value:'Low',fontSize:10,fill:C.yellow,position:'right'}}/>
+                          <Line type="monotone" dataKey="glucose" stroke={C.blue} strokeWidth={2.5} dot={{fill:C.blue,r:3,strokeWidth:0}} activeDot={{r:6}}/>
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div style={{textAlign:'center',padding:'40px 0',color:C.muted,fontSize:13}}>Not enough data for chart</div>
+                    )}
                   </div>
-                  {!detail.readings?.length ? (
-                    <div style={{padding:32,textAlign:'center',color:C.muted,fontSize:13}}>No readings recorded yet</div>
-                  ) : (
-                    <table style={{width:'100%',borderCollapse:'collapse'}}>
-                      <thead>
-                        <tr style={{background:'#F8FAFB'}}>
-                          {['Date & Time','Glucose','Context','Status'].map(h=>(
-                            <th key={h} style={{padding:'10px 20px',textAlign:'left',fontSize:11,fontWeight:700,color:C.muted,textTransform:'uppercase',letterSpacing:'0.6px'}}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {detail.readings.slice(0,10).map((r,i)=>{
-                          const s = r.glucose_mmol>10?{l:'High',c:C.red}:r.glucose_mmol<3.9?{l:'Low',c:C.yellow}:{l:'Normal',c:C.green}
-                          return (
-                            <tr key={r.id} style={{borderTop:'1px solid '+C.border,background:i%2===0?'#fff':'#FCFCFD'}}>
-                              <td style={{padding:'12px 20px',fontSize:13,color:C.text}}>{r.measured_at?.slice(0,16).replace('T',' ')}</td>
-                              <td style={{padding:'12px 20px',fontSize:15,fontWeight:700,color:s.c}}>{r.glucose_mmol} <span style={{fontSize:11,fontWeight:400,color:C.muted}}>mmol/L</span></td>
-                              <td style={{padding:'12px 20px',fontSize:13,color:C.muted}}>{r.meal_context?.replace('_',' ')}</td>
-                              <td style={{padding:'12px 20px'}}><span style={{padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700,background:s.c+'18',color:s.c}}>{s.l}</span></td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
+                )}
+
+                {detailTab==='readings' && (
+                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden'}}>
+                    <div style={{padding:'14px 22px',borderBottom:'1px solid '+C.border,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <h3 style={{fontSize:14,fontWeight:700,color:C.text,margin:0}}>Glucose Readings</h3>
+                      <span style={{fontSize:11,color:C.muted,background:C.bg,padding:'2px 10px',borderRadius:20,border:'1px solid '+C.border}}>{detail.readings?.length||0} records</span>
+                    </div>
+                    {!detail.readings?.length ? (
+                      <div style={{padding:32,textAlign:'center',color:C.muted,fontSize:13}}>No readings recorded yet</div>
+                    ) : (
+                      <table style={{width:'100%',borderCollapse:'collapse'}}>
+                        <thead>
+                          <tr style={{background:'#F8FAFB'}}>
+                            {['Date & Time','Glucose','Context','Status'].map(h=>(
+                              <th key={h} style={{padding:'10px 20px',textAlign:'left',fontSize:11,fontWeight:700,color:C.muted,textTransform:'uppercase',letterSpacing:'0.6px'}}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {detail.readings.map((r,i)=>{
+                            const s = r.glucose_mmol>10?{l:'High',c:C.red}:r.glucose_mmol<3.9?{l:'Low',c:C.yellow}:{l:'Normal',c:C.green}
+                            return (
+                              <tr key={r.id} style={{borderTop:'1px solid '+C.border,background:i%2===0?'#fff':'#FCFCFD'}}>
+                                <td style={{padding:'12px 20px',fontSize:13,color:C.text}}>{r.measured_at?.slice(0,16).replace('T',' ')}</td>
+                                <td style={{padding:'12px 20px',fontSize:15,fontWeight:700,color:s.c}}>{r.glucose_mmol} <span style={{fontSize:11,fontWeight:400,color:C.muted}}>mmol/L</span></td>
+                                <td style={{padding:'12px 20px',fontSize:13,color:C.muted}}>{r.meal_context?.replace('_',' ')}</td>
+                                <td style={{padding:'12px 20px'}}><span style={{padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700,background:s.c+'18',color:s.c}}>{s.l}</span></td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                )}
+
               </div>
             )}
           </div>

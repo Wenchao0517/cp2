@@ -11,7 +11,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 
 DATA_PATH  = Path("data/diabetes_binary_health_indicators_BRFSS2015.csv")
-OUTPUT_DIR = Path("../backend/ml")
+OUTPUT_DIR = Path("../cp2/backend/ml")
 RANDOM_STATE = 42
 RISK_THRESHOLDS = {"low": 0.30, "moderate": 0.50, "high": 0.70}
 
