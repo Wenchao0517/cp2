@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import os
+
+jsx = r"""import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { clinicianAPI } from '../api/endpoints'
 
@@ -248,3 +250,9 @@ export default function ClinicianDashboard() {
     </div>
   )
 }
+"""
+
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ClinicianDashboard.jsx')
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(jsx)
+print('ClinicianDashboard.jsx written to:', path)
