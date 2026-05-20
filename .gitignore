@@ -2,15 +2,22 @@
 venv/
 __pycache__/
 *.pyc
-*.pyo
 instance/
 *.db
 
 # Environment
 .env
 
-# ML artifacts (large files - optional to exclude)
-# backend/ml/*.pkl
+# ML artifacts
+backend/ml/*.pkl
+backend/ml/*.json
+
+# Extra ml folder
+cp2/
+
+# Data files (too large)
+data/
+notebooks/data/
 
 # Node
 frontend/node_modules/
