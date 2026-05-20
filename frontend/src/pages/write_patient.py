@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import os
+
+content = r"""import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { patientAPI, predictAPI } from '../api/endpoints'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
@@ -318,3 +320,9 @@ export default function PatientDashboard() {
     </div>
   )
 }
+"""
+
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'PatientDashboard.jsx')
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(content)
+print('PatientDashboard.jsx written successfully to:', path)
