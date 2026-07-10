@@ -29,11 +29,13 @@ const RiskBadge = ({ level }) => (
 )
 
 const StatCard = ({ label, value, color, icon, sub }) => (
-  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:16,padding:'20px 22px'}}>
+  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:'20px 22px',transition:'transform 0.15s, box-shadow 0.15s'}}
+    onMouseOver={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 24px rgba(26,35,50,0.07)'}}
+    onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
       <div style={{width:42,height:42,borderRadius:11,background:color+'18',display:'flex',alignItems:'center',justifyContent:'center',color:color}}>{icon}</div>
     </div>
-    <div style={{fontSize:30,fontWeight:700,color:color,lineHeight:1}}>{value}</div>
+    <div style={{fontSize:30,fontWeight:800,color:color,lineHeight:1}}>{value}</div>
     <div style={{fontSize:13,fontWeight:600,color:C.text,marginTop:4}}>{label}</div>
     {sub && <div style={{fontSize:11,color:C.muted,marginTop:2}}>{sub}</div>}
   </div>
@@ -100,12 +102,12 @@ export default function ClinicianDashboard() {
   const highAlerts = detail?.readings?.filter(r=>r.glucose_mmol>10).length || 0
 
   return (
-    <div style={{minHeight:'100vh',background:C.bg,fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'}}>
+    <div style={{minHeight:'100vh',background:C.bg,fontFamily:"'Plus Jakarta Sans',-apple-system,sans-serif"}}>
 
-      <nav style={{background:C.card,borderBottom:'1px solid '+C.border,padding:'0 32px',height:62,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100,boxShadow:'0 1px 0 '+C.border}}>
+      <nav style={{background:'rgba(255,255,255,0.9)',backdropFilter:'blur(12px)',borderBottom:'1px solid '+C.border,padding:'0 32px',height:62,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100,boxShadow:'0 1px 0 '+C.border}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{width:34,height:34,borderRadius:9,background:'linear-gradient(135deg,#3B82F6,#2563EB)',display:'flex',alignItems:'center',justifyContent:'center'}}><IcoWave/></div>
-          <span style={{fontWeight:700,fontSize:17,color:C.text,letterSpacing:'-0.3px'}}>DiabetesGuard</span>
+          <span style={{fontWeight:800,fontSize:17,color:C.text,letterSpacing:'-0.4px'}}>DiabetesGuard</span>
           <span style={{fontSize:11,background:'#3B82F618',color:C.blue,padding:'2px 9px',borderRadius:20,fontWeight:600,marginLeft:2,letterSpacing:'0.3px'}}>CLINICIAN</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -122,7 +124,7 @@ export default function ClinicianDashboard() {
 
       <div style={{maxWidth:1300,margin:'0 auto',padding:'26px 24px'}}>
         <div style={{marginBottom:22}}>
-          <h1 style={{fontSize:22,fontWeight:700,color:C.text,margin:'0 0 3px',letterSpacing:'-0.4px'}}>Patient Dashboard</h1>
+          <h1 style={{fontSize:24,fontWeight:800,color:C.text,margin:'0 0 3px',letterSpacing:'-0.4px'}}>Clinician Dashboard</h1>
           <p style={{color:C.muted,fontSize:13,margin:0}}>Monitor and manage your patient panel</p>
         </div>
 
@@ -316,3 +318,6 @@ export default function ClinicianDashboard() {
     </div>
   )
 }
+
+
+
