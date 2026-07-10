@@ -61,6 +61,9 @@ export default function ClinicianDashboard() {
   const [search, setSearch]     = useState('')
   const [loading, setLoading]   = useState(false)
   const [detailTab, setDetailTab] = useState('overview')
+  const [notes, setNotes] = useState([])
+  const [noteText, setNoteText] = useState('')
+  const [noteSaving, setNoteSaving] = useState(false)
 
   useEffect(() => {
     clinicianAPI.getPatients().then(r => setPatients(r.data.patients))
@@ -72,6 +75,7 @@ export default function ClinicianDashboard() {
     setLoading(true); setSelected(id); setDetailTab('overview')
     const r = await clinicianAPI.getPatientDetail(id)
     setDetail(r.data); setLoading(false)
+    clinicianAPI.getPatientNotes(id).then(res => setNotes(res.data.notes)).catch(()=>setNotes([]))
   }
 
   const filtered = patients.filter(p => {
@@ -84,6 +88,17 @@ export default function ClinicianDashboard() {
 
   const d = stats?.risk_distribution || {}
   const highCount = (d.high||0) + (d.very_high||0)
+
+  const submitNote = async () => {
+    if (!noteText.trim()) return
+    setNoteSaving(true)
+    try {
+      const r = await clinicianAPI.addNote(selected, noteText.trim())
+      setNotes([r.data.note, ...notes])
+      setNoteText('')
+    } catch(e) { alert('Failed to save note') }
+    setNoteSaving(false)
+  }
 
   const chartData = detail?.readings
     ? [...detail.readings].reverse().map((r,i) => ({
@@ -225,7 +240,7 @@ export default function ClinicianDashboard() {
                 </div>
 
                 <div style={{display:'flex',gap:4,background:C.card,border:'1px solid '+C.border,borderRadius:12,padding:4,width:'fit-content'}}>
-                  {[['overview','Overview'],['chart','📈 Glucose Chart'],['readings','📋 Readings']].map(([k,l])=>(
+                  {[['overview','Overview'],['chart','Glucose Chart'],['readings','Readings'],['notes','Notes']].map(([k,l])=>(
                     <button key={k} onClick={()=>setDetailTab(k)}
                       style={{padding:'7px 16px',borderRadius:9,border:'none',cursor:'pointer',fontSize:13,fontWeight:600,
                         background:detailTab===k?C.blue:'transparent',color:detailTab===k?'#fff':C.muted,transition:'all 0.2s'}}>
@@ -275,6 +290,30 @@ export default function ClinicianDashboard() {
                   </div>
                 )}
 
+                {detailTab==='notes' && (
+                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                    <h3 style={{fontSize:14,fontWeight:800,color:C.text,marginBottom:14}}>Clinical Notes</h3>
+                    <div style={{marginBottom:18}}>
+                      <textarea value={noteText} onChange={e=>setNoteText(e.target.value)}
+                        placeholder='Write a note or recommendation for this patient...'
+                        rows={3}
+                        style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',background:'#FBFDFC'}}/>
+                      <button onClick={submitNote} disabled={noteSaving||!noteText.trim()}
+                        style={{marginTop:10,padding:'9px 22px',background:noteText.trim()?'linear-gradient(135deg,#3B82F6,#2563EB)':'#E8EDF2',color:noteText.trim()?'#fff':'#9CA3AF',border:'none',borderRadius:10,fontSize:13,fontWeight:700,cursor:noteText.trim()?'pointer':'default',fontFamily:'inherit'}}>
+                        {noteSaving?'Saving...':'Send to Patient'}
+                      </button>
+                    </div>
+                    {notes.length===0 ? (
+                      <p style={{fontSize:13,color:C.muted,textAlign:'center',padding:'16px 0'}}>No notes yet. Write the first one above.</p>
+                    ) : notes.map(n=>(
+                      <div key={n.id} style={{padding:'13px 16px',background:'#F8FAFB',borderRadius:12,marginBottom:10,borderLeft:'3px solid '+C.blue}}>
+                        <div style={{fontSize:13.5,color:'#374151',lineHeight:1.7}}>{n.content}</div>
+                        <div style={{fontSize:11.5,color:C.muted,marginTop:6,fontWeight:600}}>Dr. {n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {detailTab==='readings' && (
                   <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden'}}>
                     <div style={{padding:'14px 22px',borderBottom:'1px solid '+C.border,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -318,6 +357,11 @@ export default function ClinicianDashboard() {
     </div>
   )
 }
+
+
+
+
+
 
 
 

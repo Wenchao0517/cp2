@@ -99,3 +99,15 @@ def delete_glucose(reading_id):
     log_action(user_id, 'glucose.delete', f'reading/{reading_id}')
     return jsonify({'message': 'Deleted'}), 200
 
+
+
+@patients_bp.route("/notes", methods=["GET"])
+@patient_required
+def get_my_notes():
+    from ..models.doctor_note import DoctorNote
+    from ..models.user import User
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    notes = DoctorNote.query.filter_by(patient_id=user.patient_profile.id)\
+            .order_by(DoctorNote.created_at.desc()).limit(10).all()
+    return jsonify({"notes": [n.to_dict() for n in notes]}), 200

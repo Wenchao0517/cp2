@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+﻿from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
 from ..extensions import db
 from ..models.user import User
@@ -76,3 +76,28 @@ def get_stats():
         else:
             counts["unassessed"] += 1
     return jsonify({"total_patients": len(patients), "risk_distribution": counts}), 200
+
+
+@clinician_bp.route("/patients/<int:patient_id>/notes", methods=["POST"])
+@doctor_required
+def add_note(patient_id):
+    from ..models.doctor_note import DoctorNote
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    content = (data.get("content") or "").strip()
+    if not content:
+        return jsonify({"error": "Note content is required"}), 400
+    note = DoctorNote(patient_id=patient_id, doctor_id=user_id, content=content)
+    db.session.add(note)
+    db.session.commit()
+    log_action(user_id, "note.create", f"patient/{patient_id}/note/{note.id}")
+    return jsonify({"note": note.to_dict()}), 201
+
+
+@clinician_bp.route("/patients/<int:patient_id>/notes", methods=["GET"])
+@doctor_required
+def get_notes(patient_id):
+    from ..models.doctor_note import DoctorNote
+    notes = DoctorNote.query.filter_by(patient_id=patient_id)\
+            .order_by(DoctorNote.created_at.desc()).all()
+    return jsonify({"notes": [n.to_dict() for n in notes]}), 200
