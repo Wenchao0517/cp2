@@ -82,6 +82,7 @@ export default function PatientDashboard() {
   const [loading, setLoading]       = useState(false)
   const [tab, setTab]               = useState('overview')
   const [doctorNotes, setDoctorNotes] = useState([])
+  const [riskHistory, setRiskHistory] = useState([])
   const [replyText, setReplyText] = useState('')
   const [replySending, setReplySending] = useState(false)
 
@@ -89,6 +90,7 @@ export default function PatientDashboard() {
     patientAPI.getGlucose().then(r => setReadings(r.data.readings))
     predictAPI.getLatest().then(r => setAssessment(r.data.assessment))
     patientAPI.getNotes().then(r => setDoctorNotes(r.data.notes)).catch(()=>{})
+    patientAPI.getAssessments().then(r => setRiskHistory(r.data.assessments || [])).catch(()=>{})
   }, [])
 
   const flash = (text, type='ok') => { setMsg({text,type}); setTimeout(()=>setMsg({text:'',type:''}),3500) }
@@ -127,7 +129,8 @@ export default function PatientDashboard() {
 
   const runAssessment = async () => {
     setLoading(true)
-    try { const r = await predictAPI.runAssessment(); setAssessment(r.data.assessment); flash('Assessment updated') }
+    try { const r = await predictAPI.runAssessment(); setAssessment(r.data.assessment); flash('Assessment updated')
+      patientAPI.getAssessments().then(res => setRiskHistory(res.data.assessments || [])).catch(()=>{}) }
     catch(e){ flash(e.response?.data?.error||'Failed','err') }
     setLoading(false)
   }
@@ -139,6 +142,10 @@ export default function PatientDashboard() {
   const maxGlucose = readings.length ? Math.max(...readings.map(r=>r.glucose_mmol)) : '--'
   const minGlucose = readings.length ? Math.min(...readings.map(r=>r.glucose_mmol)) : '--'
   const hba1c = avg !== '--' ? ((parseFloat(avg) + 2.59) / 1.59).toFixed(1) : '--'
+  const riskChartData = [...riskHistory].reverse().map(a => ({
+    time: a.created_at?.slice(5,16).replace('T',' '),
+    risk: Math.round((a.probability||0)*100)
+  }))
 
   return (
     <div style={{minHeight:'100vh',background:C.bg,fontFamily:F}}>
@@ -280,6 +287,26 @@ export default function PatientDashboard() {
                     {replySending?'Sending...':'Send'}
                   </button>
                 </div>
+              </div>
+            )}
+
+            {riskChartData.length>1 && (
+              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24,gridColumn:'1/-1'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+                  <h2 style={{fontSize:16,fontWeight:800,color:C.text,margin:0,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.red}}>{Ico.target}</span> Risk History</h2>
+                  <span style={{fontSize:12,color:C.muted,fontWeight:600}}>{riskChartData.length} assessments</span>
+                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <LineChart data={riskChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                    <XAxis dataKey="time" tick={{fontSize:10.5,fill:C.muted}} tickLine={false}/>
+                    <YAxis domain={[0,100]} tick={{fontSize:10.5,fill:C.muted}} tickLine={false} axisLine={false} unit="%" width={45}/>
+                    <Tooltip formatter={(v)=>[v+'%','Risk']} labelStyle={{color:'#1A2332'}}/>
+                    <ReferenceLine y={70} stroke={C.red} strokeDasharray="4 4" label={{value:'Very High',fontSize:10,fill:C.red,position:'right'}}/>
+                    <ReferenceLine y={30} stroke={C.green} strokeDasharray="4 4" label={{value:'Low',fontSize:10,fill:C.green,position:'right'}}/>
+                    <Line type="monotone" dataKey="risk" stroke={C.red} strokeWidth={2.8} dot={{fill:C.red,r:4,strokeWidth:0}} activeDot={{r:6,strokeWidth:2,stroke:'#fff'}}/>
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             )}
 
