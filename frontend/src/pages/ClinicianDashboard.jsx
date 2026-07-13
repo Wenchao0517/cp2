@@ -306,9 +306,9 @@ export default function ClinicianDashboard() {
                     {notes.length===0 ? (
                       <p style={{fontSize:13,color:C.muted,textAlign:'center',padding:'16px 0'}}>No notes yet. Write the first one above.</p>
                     ) : notes.map(n=>(
-                      <div key={n.id} style={{padding:'13px 16px',background:'#F8FAFB',borderRadius:12,marginBottom:10,borderLeft:'3px solid '+C.blue}}>
+                      <div key={n.id} style={{padding:'13px 16px',background:n.sender==='patient'?'#00C48C0A':'#F8FAFB',borderRadius:12,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
                         <div style={{fontSize:13.5,color:'#374151',lineHeight:1.7}}>{n.content}</div>
-                        <div style={{fontSize:11.5,color:C.muted,marginTop:6,fontWeight:600}}>Dr. {n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
+                        <div style={{fontSize:11.5,color:C.muted,marginTop:6,fontWeight:600}}>{n.sender==='patient'?'Patient':'Dr. '+n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
                       </div>
                     ))}
                   </div>

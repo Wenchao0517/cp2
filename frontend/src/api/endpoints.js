@@ -16,6 +16,9 @@ export const patientAPI = {
   getAssessments:()     => api.get('/api/patients/assessments'),
   deleteGlucose: (id)   => api.delete('/api/patients/glucose/' + id),
   getNotes:      ()     => api.get('/api/patients/notes'),
+  listDoctors:   ()     => api.get('/api/patients/doctors'),
+  selectDoctor:  (id)   => api.put('/api/patients/select-doctor', { doctor_id: id }),
+  replyNote:     (content) => api.post('/api/patients/notes/reply', { content }),
 }
 
 export const predictAPI = {
@@ -31,6 +34,8 @@ export const clinicianAPI = {
   getStats:         ()     => api.get('/api/clinician/stats'),
   assignPatient:    (id)   => api.post('/api/clinician/assign/' + id),
 }
+
+
 
 
 

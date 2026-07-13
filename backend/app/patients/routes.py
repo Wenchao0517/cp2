@@ -111,3 +111,51 @@ def get_my_notes():
     notes = DoctorNote.query.filter_by(patient_id=user.patient_profile.id)\
             .order_by(DoctorNote.created_at.desc()).limit(10).all()
     return jsonify({"notes": [n.to_dict() for n in notes]}), 200
+
+
+@patients_bp.route("/doctors", methods=["GET"])
+@patient_required
+def list_doctors():
+    from ..models.user import User
+    doctors = User.query.filter_by(role="doctor", is_active=True).all()
+    return jsonify({"doctors": [{"id": d.id, "full_name": d.full_name} for d in doctors]}), 200
+
+
+@patients_bp.route("/select-doctor", methods=["PUT"])
+@patient_required
+def select_doctor():
+    from ..models.user import User
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    data = request.get_json()
+    doctor_id = data.get("doctor_id")
+    if doctor_id is not None:
+        doctor = User.query.filter_by(id=doctor_id, role="doctor").first()
+        if not doctor:
+            return jsonify({"error": "Doctor not found"}), 404
+    user.patient_profile.doctor_id = doctor_id
+    db.session.commit()
+    log_action(user_id, "patient.select_doctor", f"doctor/{doctor_id}")
+    return jsonify({"message": "Doctor updated", "doctor_id": doctor_id}), 200
+
+
+@patients_bp.route("/notes/reply", methods=["POST"])
+@patient_required
+def reply_note():
+    from ..models.doctor_note import DoctorNote
+    from ..models.user import User
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    patient = user.patient_profile
+    if not patient.doctor_id:
+        return jsonify({"error": "No doctor assigned. Select your doctor in Profile first."}), 400
+    data = request.get_json()
+    content = (data.get("content") or "").strip()
+    if not content:
+        return jsonify({"error": "Message is required"}), 400
+    note = DoctorNote(patient_id=patient.id, doctor_id=patient.doctor_id,
+                      content=content, sender="patient")
+    db.session.add(note)
+    db.session.commit()
+    log_action(user_id, "note.reply", f"note/{note.id}")
+    return jsonify({"note": note.to_dict()}), 201

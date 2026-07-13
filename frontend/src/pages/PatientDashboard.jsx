@@ -82,6 +82,8 @@ export default function PatientDashboard() {
   const [loading, setLoading]       = useState(false)
   const [tab, setTab]               = useState('overview')
   const [doctorNotes, setDoctorNotes] = useState([])
+  const [replyText, setReplyText] = useState('')
+  const [replySending, setReplySending] = useState(false)
 
   useEffect(() => {
     patientAPI.getGlucose().then(r => setReadings(r.data.readings))
@@ -109,6 +111,18 @@ export default function PatientDashboard() {
       const r = await patientAPI.getGlucose(); setReadings(r.data.readings)
       flash('Reading deleted')
     } catch(e){ flash('Delete failed','err') }
+  }
+
+  const sendReply = async () => {
+    if (!replyText.trim()) return
+    setReplySending(true)
+    try {
+      const r = await patientAPI.replyNote(replyText.trim())
+      setDoctorNotes([r.data.note, ...doctorNotes])
+      setReplyText('')
+      flash('Message sent to your doctor')
+    } catch(e){ flash(e.response?.data?.error||'Failed to send','err') }
+    setReplySending(false)
   }
 
   const runAssessment = async () => {
@@ -247,15 +261,25 @@ export default function PatientDashboard() {
               )}
             </div>
 
-            {doctorNotes.length>0 && (
+            {(doctorNotes.length>0 || true) && (
               <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24,gridColumn:'1/-1'}}>
                 <h2 style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:16,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.blue}}>{Ico.msg2}</span> Messages from your doctor</h2>
-                {doctorNotes.slice(0,3).map(n=>(
-                  <div key={n.id} style={{padding:'14px 18px',background:'#3B82F608',borderRadius:14,marginBottom:10,borderLeft:'3px solid '+C.blue}}>
+                {doctorNotes.slice(0,5).map(n=>(
+                  <div key={n.id} style={{padding:'14px 18px',background:n.sender==='patient'?'#00C48C08':'#3B82F608',borderRadius:14,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
                     <div style={{fontSize:13.5,color:'#374151',lineHeight:1.75}}>{n.content}</div>
-                    <div style={{fontSize:11.5,color:C.muted,marginTop:7,fontWeight:700}}>Dr. {n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
+                    <div style={{fontSize:11.5,color:C.muted,marginTop:7,fontWeight:700}}>{n.sender==='patient'?'You':'Dr. '+n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
                   </div>
                 ))}
+                <div style={{display:'flex',gap:10,marginTop:14}}>
+                  <input value={replyText} onChange={e=>setReplyText(e.target.value)}
+                    onKeyDown={e=>{if(e.key==='Enter')sendReply()}}
+                    placeholder='Write a message to your doctor...'
+                    style={{flex:1,padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',fontFamily:'inherit',background:'#FBFDFC'}}/>
+                  <button onClick={sendReply} disabled={replySending||!replyText.trim()}
+                    style={{padding:'12px 24px',background:replyText.trim()?'linear-gradient(135deg,#3B82F6,#2563EB)':'#E8EDF2',color:replyText.trim()?'#fff':'#9CA3AF',border:'none',borderRadius:12,fontSize:13.5,fontWeight:700,cursor:replyText.trim()?'pointer':'default',fontFamily:'inherit'}}>
+                    {replySending?'Sending...':'Send'}
+                  </button>
+                </div>
               </div>
             )}
 

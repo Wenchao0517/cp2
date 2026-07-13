@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { patientAPI } from '../api/endpoints'
@@ -45,6 +45,8 @@ export default function ProfileSetup() {
   const [loading, setLoading]   = useState(false)
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
+  const [doctorId, setDoctorId] = useState('')
+  const [doctors, setDoctors]   = useState([])
   const [form, setForm] = useState({
     date_of_birth:'', gender:'', height_cm:'', weight_kg:'',
     has_hypertension:false, has_high_chol:false, smoker:false,
@@ -53,9 +55,11 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     setLoading(true)
+    patientAPI.listDoctors().then(r => setDoctors(r.data.doctors)).catch(()=>{})
     patientAPI.getProfile()
       .then(r => {
         const p = r.data.patient
+        setDoctorId(p.doctor_id || '')
         setForm({
           date_of_birth:   p.date_of_birth || '',
           gender:          p.gender || '',
@@ -86,6 +90,7 @@ export default function ProfileSetup() {
     e.preventDefault()
     setSaving(true)
     try {
+      await patientAPI.selectDoctor(doctorId ? parseInt(doctorId) : null)
       await patientAPI.updateProfile({
         ...form,
         height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
@@ -206,6 +211,24 @@ export default function ProfileSetup() {
               value={form.physical_activity} onChange={v=>setForm({...form,physical_activity:v})}/>
           </div>
 
+          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:24,marginBottom:16}}>
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+              <div style={{width:40,height:40,borderRadius:11,background:'#3B82F614',display:'flex',alignItems:'center',justifyContent:'center',color:'#3B82F6'}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div style={{fontSize:15,fontWeight:700,color:C.text}}>My Doctor</div>
+                <div style={{fontSize:12.5,color:C.muted}}>Choose your clinician to enable two-way messaging</div>
+              </div>
+            </div>
+            <select value={doctorId} onChange={e=>setDoctorId(e.target.value)}
+              style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit',background:'#FBFDFC',cursor:'pointer'}}>
+              <option value="">-- No doctor selected --</option>
+              {doctors.map(d=>(
+                <option key={d.id} value={d.id}>Dr. {d.full_name}</option>
+              ))}
+            </select>
+          </div>
           <div style={{display:'flex',gap:12}}>
             <button type="submit" disabled={saving}
               style={{flex:1,padding:'13px',background:'linear-gradient(135deg,#00C48C,#00A070)',color:'#fff',border:'none',borderRadius:11,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,fontFamily:'inherit'}}>
@@ -221,3 +244,10 @@ export default function ProfileSetup() {
     </div>
   )
 }
+
+
+
+
+
+
+
