@@ -83,6 +83,7 @@ export default function PatientDashboard() {
   const [tab, setTab]               = useState('overview')
   const [doctorNotes, setDoctorNotes] = useState([])
   const [riskHistory, setRiskHistory] = useState([])
+  const [profileDone, setProfileDone] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [replySending, setReplySending] = useState(false)
 
@@ -91,6 +92,10 @@ export default function PatientDashboard() {
     predictAPI.getLatest().then(r => setAssessment(r.data.assessment))
     patientAPI.getNotes().then(r => setDoctorNotes(r.data.notes)).catch(()=>{})
     patientAPI.getAssessments().then(r => setRiskHistory(r.data.assessments || [])).catch(()=>{})
+    patientAPI.getProfile().then(r => {
+      const p = r.data.patient
+      setProfileDone(!!(p.height_cm && p.weight_kg))
+    }).catch(()=>{})
   }, [])
 
   const flash = (text, type='ok') => { setMsg({text,type}); setTimeout(()=>setMsg({text:'',type:''}),3500) }
@@ -196,6 +201,34 @@ export default function PatientDashboard() {
           <h1 style={{fontSize:26,fontWeight:800,color:C.text,marginBottom:4,letterSpacing:'-0.6px'}}>Good day, {user?.full_name?.split(' ')[0]}</h1>
           <p style={{color:C.muted,fontSize:14,margin:0,fontWeight:500}}>Your personal diabetes risk monitor</p>
         </div>
+
+        {(!profileDone || readings.length===0 || !assessment) && (
+          <div style={{background:'linear-gradient(135deg,#F0FDF8,#F6FEFB)',border:'1.5px solid #00C48C40',borderRadius:18,padding:'20px 24px',marginBottom:24}}>
+            <div style={{fontSize:15,fontWeight:800,color:C.text,marginBottom:4}}>Get started with DiabetesGuard</div>
+            <div style={{fontSize:13,color:C.muted,marginBottom:16,fontWeight:500}}>Complete these steps to unlock your personalised risk assessment</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+              {[
+                {done: profileDone, num:'1', title:'Complete your profile', sub:'Height, weight and medical history', action:()=>navigate('/profile')},
+                {done: readings.length>0, num:'2', title:'Log a glucose reading', sub:'Enter a value from your glucometer', action:()=>setTab('log')},
+                {done: !!assessment, num:'3', title:'Run your assessment', sub:'Get your AI-powered risk score', action:runAssessment},
+              ].map((s,i)=>(
+                <div key={i} onClick={s.done?undefined:s.action}
+                  style={{display:'flex',alignItems:'center',gap:12,padding:'14px 16px',background:'#fff',border:'1.5px solid '+(s.done?'#00C48C50':C.border),borderRadius:14,cursor:s.done?'default':'pointer',opacity:s.done?0.75:1,transition:'all 0.15s'}}
+                  onMouseOver={e=>{if(!s.done)e.currentTarget.style.borderColor='#00C48C'}}
+                  onMouseOut={e=>{if(!s.done)e.currentTarget.style.borderColor=C.border}}>
+                  <div style={{width:32,height:32,borderRadius:'50%',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:14,
+                    background:s.done?'#00C48C':'#F0F4F3',color:s.done?'#fff':C.muted}}>
+                    {s.done?'✓':s.num}
+                  </div>
+                  <div>
+                    <div style={{fontSize:13.5,fontWeight:700,color:C.text,textDecoration:s.done?'line-through':'none'}}>{s.title}</div>
+                    <div style={{fontSize:11.5,color:C.muted,marginTop:1}}>{s.sub}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:14}}>
           <StatCard label="Latest reading" value={readings[0]?.glucose_mmol??'--'} unit="mmol/L" color={C.green} icon={Ico.drop}/>
