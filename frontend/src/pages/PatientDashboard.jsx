@@ -105,13 +105,25 @@ export default function PatientDashboard() {
 
   const flash = (text, type='ok') => { setMsg({text,type}); setTimeout(()=>setMsg({text:'',type:''}),3500) }
 
+  const fillDemo = (type) => {
+    const demo = type === 'high'
+      ? { glucose_mmol: (12 + Math.random()*6).toFixed(1), meal_context: 'fasting', notes: 'demo data' }
+      : { glucose_mmol: (4.5 + Math.random()*2).toFixed(1), meal_context: 'fasting', notes: 'demo data' }
+    setForm(demo)
+  }
+
   const addReading = async (e) => {
     e.preventDefault(); setLoading(true)
     try {
       await patientAPI.addGlucose({...form, glucose_mmol:parseFloat(form.glucose_mmol), measured_at:new Date().toISOString()})
       const r = await patientAPI.getGlucose(); setReadings(r.data.readings)
       setForm({glucose_mmol:'',meal_context:'fasting',notes:''})
-      flash('Reading logged')
+      flash('Reading logged - updating risk...')
+      try {
+        const a = await predictAPI.runAssessment()
+        setAssessment(a.data.assessment)
+        patientAPI.getAssessments().then(res => setRiskHistory(res.data.assessments || [])).catch(()=>{})
+      } catch(err) { /* assessment optional here */ }
     } catch(e){ flash(e.response?.data?.error||'Error','err') }
     setLoading(false)
   }
@@ -400,6 +412,16 @@ export default function PatientDashboard() {
                   <label style={{display:'block',fontSize:11.5,fontWeight:800,color:C.muted,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.8px'}}>Notes (optional)</label>
                   <input value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="e.g. after breakfast"
                     style={{width:'100%',padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:F,background:'#FBFDFC'}}/>
+                </div>
+                <div style={{display:'flex',gap:8,marginBottom:14}}>
+                  <button type="button" onClick={()=>fillDemo('normal')}
+                    style={{flex:1,padding:'9px',background:'#00C48C0D',color:'#00A878',border:'1.5px dashed #00C48C60',borderRadius:10,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:F}}>
+                    Fill normal sample
+                  </button>
+                  <button type="button" onClick={()=>fillDemo('high')}
+                    style={{flex:1,padding:'9px',background:'#FF6B6B0D',color:'#DC2626',border:'1.5px dashed #FF6B6B60',borderRadius:10,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:F}}>
+                    Fill high sample
+                  </button>
                 </div>
                 <button type="submit" disabled={loading}
                   style={{width:'100%',padding:'15px',background:'linear-gradient(135deg,#00C48C,#00A878)',color:'#fff',border:'none',borderRadius:14,fontSize:15.5,fontWeight:800,cursor:'pointer',opacity:loading?0.7:1,fontFamily:F,boxShadow:'0 8px 20px rgba(0,196,140,0.35)'}}>
