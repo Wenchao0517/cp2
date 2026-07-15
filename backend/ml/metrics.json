@@ -1,50 +1,66 @@
 {
-  "test_metrics": {
-    "accuracy": 0.8654998423210344,
-    "precision": 0.5507726269315674,
-    "recall": 0.1882308562806488,
-    "f1": 0.2805735170087152,
-    "roc_auc": 0.8295124438135113,
-    "confusion_matrix": [
-      [
-        31936,
-        814
-      ],
-      [
-        4304,
-        998
+  "dataset": "Kaggle Diabetes Prediction (100k)",
+  "n_samples": 99982,
+  "best_model": "RandomForest",
+  "calibrated": true,
+  "calibrated_test_auc": 0.9769,
+  "comparison": {
+    "LogisticRegression": {
+      "cv_auc_mean": 0.9616,
+      "cv_auc_std": 0.0021,
+      "test_auc": 0.962,
+      "accuracy": 0.888,
+      "precision": 0.4238,
+      "recall": 0.8829,
+      "f1": 0.5727,
+      "confusion_matrix": [
+        [
+          16256,
+          2041
+        ],
+        [
+          199,
+          1501
+        ]
       ]
-    ],
-    "test_size": 38052
-  },
-  "risk_thresholds": {
-    "low": 0.3,
-    "moderate": 0.5,
-    "high": 0.7
-  },
-  "feature_names": [
-    "HighBP",
-    "HighChol",
-    "CholCheck",
-    "BMI",
-    "Smoker",
-    "Stroke",
-    "HeartDiseaseorAttack",
-    "PhysActivity",
-    "Fruits",
-    "Veggies",
-    "HvyAlcoholConsump",
-    "AnyHealthcare",
-    "NoDocbcCost",
-    "GenHlth",
-    "MentHlth",
-    "PhysHlth",
-    "DiffWalk",
-    "Sex",
-    "Age",
-    "Education",
-    "Income"
-  ],
-  "model_version": "1.0.0",
-  "model_type": "XGBoost"
+    },
+    "RandomForest": {
+      "cv_auc_mean": 0.976,
+      "cv_auc_std": 0.0016,
+      "test_auc": 0.9772,
+      "accuracy": 0.9178,
+      "precision": 0.5096,
+      "recall": 0.8894,
+      "f1": 0.648,
+      "confusion_matrix": [
+        [
+          16842,
+          1455
+        ],
+        [
+          188,
+          1512
+        ]
+      ]
+    },
+    "XGBoost": {
+      "cv_auc_mean": 0.9758,
+      "cv_auc_std": 0.0016,
+      "test_auc": 0.9768,
+      "accuracy": 0.9162,
+      "precision": 0.5042,
+      "recall": 0.8835,
+      "f1": 0.642,
+      "confusion_matrix": [
+        [
+          16820,
+          1477
+        ],
+        [
+          198,
+          1502
+        ]
+      ]
+    }
+  }
 }

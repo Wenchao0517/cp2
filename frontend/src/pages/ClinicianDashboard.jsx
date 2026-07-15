@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { clinicianAPI } from '../api/endpoints'
+import useIsMobile from '../hooks/useIsMobile'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 const C = {
@@ -61,6 +62,7 @@ export default function ClinicianDashboard() {
   const [search, setSearch]     = useState('')
   const [loading, setLoading]   = useState(false)
   const [detailTab, setDetailTab] = useState('overview')
+  const isMobile = useIsMobile()
   const [notes, setNotes] = useState([])
   const [noteText, setNoteText] = useState('')
   const [noteSaving, setNoteSaving] = useState(false)
@@ -117,42 +119,42 @@ export default function ClinicianDashboard() {
   const highAlerts = detail?.readings?.filter(r=>r.glucose_mmol>10).length || 0
 
   return (
-    <div style={{minHeight:'100vh',background:C.bg,fontFamily:"'Plus Jakarta Sans',-apple-system,sans-serif"}}>
+    <div style={{minHeight:'100vh',background:C.bg,overflowX:'hidden',fontFamily:"'Plus Jakarta Sans',-apple-system,sans-serif"}}>
 
-      <nav style={{background:'rgba(255,255,255,0.9)',backdropFilter:'blur(12px)',borderBottom:'1px solid '+C.border,padding:'0 32px',height:62,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100,boxShadow:'0 1px 0 '+C.border}}>
+      <nav style={{background:'rgba(255,255,255,0.9)',backdropFilter:'blur(12px)',borderBottom:'1px solid '+C.border,padding:isMobile?'0 14px':'0 32px',height:62,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100,boxShadow:'0 1px 0 '+C.border}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{width:34,height:34,borderRadius:9,background:'linear-gradient(135deg,#3B82F6,#2563EB)',display:'flex',alignItems:'center',justifyContent:'center'}}><IcoWave/></div>
           <span style={{fontWeight:800,fontSize:17,color:C.text,letterSpacing:'-0.4px'}}>DiabetesGuard</span>
-          <span style={{fontSize:11,background:'#3B82F618',color:C.blue,padding:'2px 9px',borderRadius:20,fontWeight:600,marginLeft:2,letterSpacing:'0.3px'}}>CLINICIAN</span>
+          {!isMobile && <span style={{fontSize:11,background:'#3B82F618',color:C.blue,padding:'2px 9px',borderRadius:20,fontWeight:600,marginLeft:2,letterSpacing:'0.3px'}}>CLINICIAN</span>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{width:30,height:30,borderRadius:'50%',background:'#3B82F618',display:'flex',alignItems:'center',justifyContent:'center',color:C.blue,fontWeight:700,fontSize:13}}>
             {user?.full_name?.[0]?.toUpperCase()}
           </div>
-          <div>
+          {!isMobile && <div>
             <div style={{fontSize:13,fontWeight:600,color:C.text}}>Dr. {user?.full_name}</div>
             <div style={{fontSize:11,color:C.muted}}>Clinician</div>
-          </div>
-          <button onClick={logout} style={{padding:'6px 14px',background:'transparent',color:C.muted,border:'1px solid '+C.border,borderRadius:7,fontSize:12,fontWeight:600,cursor:'pointer',marginLeft:6}}>Sign out</button>
+          </div>}
+          <button onClick={logout} style={{display:'flex',alignItems:'center',padding:isMobile?'7px 9px':'6px 14px',background:'transparent',color:C.muted,border:'1px solid '+C.border,borderRadius:7,fontSize:12,fontWeight:600,cursor:'pointer',marginLeft:6}}>{isMobile?<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>:'Sign out'}</button>
         </div>
       </nav>
 
-      <div style={{maxWidth:1300,margin:'0 auto',padding:'26px 24px'}}>
+      <div style={{maxWidth:1300,margin:'0 auto',padding:isMobile?'16px 14px':'26px 24px'}}>
         <div style={{marginBottom:22}}>
           <h1 style={{fontSize:24,fontWeight:800,color:C.text,margin:'0 0 3px',letterSpacing:'-0.4px'}}>Clinician Dashboard</h1>
           <p style={{color:C.muted,fontSize:13,margin:0}}>Monitor and manage your patient panel</p>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:isMobile?10:14,marginBottom:24}}>
           <StatCard label="Total Patients"   value={stats?.total_patients??0} color={C.blue}   icon={<IcoUsers/>}  sub="In your panel"/>
           <StatCard label="Low Risk"         value={d.low??0}                 color={C.green}  icon={<IcoCheck/>}  sub="Well managed"/>
           <StatCard label="Moderate Risk"    value={d.moderate??0}            color={C.yellow} icon={<IcoWarn/>}   sub="Monitor closely"/>
           <StatCard label="High / Very High" value={highCount}                color={C.red}    icon={<IcoAlert/>}  sub="Needs attention"/>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'340px 1fr',gap:18}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'340px 1fr',gap:18,minWidth:0}}>
 
-          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden'}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden',minWidth:0}}>
             <div style={{padding:'16px 18px',borderBottom:'1px solid '+C.border}}>
               <h2 style={{fontSize:14,fontWeight:700,color:C.text,margin:'0 0 10px'}}>Patient Panel</h2>
               <div style={{position:'relative',marginBottom:8}}>
@@ -172,7 +174,7 @@ export default function ClinicianDashboard() {
               </div>
             </div>
 
-            <div style={{maxHeight:'calc(100vh - 340px)',overflowY:'auto'}}>
+            <div style={{maxHeight:isMobile?'320px':'calc(100vh - 340px)',overflowY:'auto'}}>
               {filtered.length === 0 ? (
                 <div style={{textAlign:'center',padding:'40px 20px',color:C.muted}}>
                   <p style={{fontSize:13,margin:0}}>No patients found</p>
@@ -204,7 +206,7 @@ export default function ClinicianDashboard() {
             </div>
           </div>
 
-          <div>
+          <div style={{minWidth:0}}>
             {!selected ? (
               <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:'56px 40px',textAlign:'center',color:C.muted}}>
                 <div style={{color:C.border,marginBottom:12,display:'flex',justifyContent:'center'}}><IcoClick/></div>
@@ -239,10 +241,10 @@ export default function ClinicianDashboard() {
                   </div>
                 </div>
 
-                <div style={{display:'flex',gap:4,background:C.card,border:'1px solid '+C.border,borderRadius:12,padding:4,width:'fit-content'}}>
+                <div style={{display:'flex',gap:4,background:C.card,border:'1px solid '+C.border,borderRadius:12,padding:4,width:isMobile?'100%':'fit-content',overflowX:'auto'}}>
                   {[['overview','Overview'],['chart','Glucose Chart'],['readings','Readings'],['notes','Notes']].map(([k,l])=>(
                     <button key={k} onClick={()=>setDetailTab(k)}
-                      style={{padding:'7px 16px',borderRadius:9,border:'none',cursor:'pointer',fontSize:13,fontWeight:600,
+                      style={{padding:isMobile?'7px 10px':'7px 16px',flex:isMobile?1:'none',whiteSpace:'nowrap',borderRadius:9,border:'none',cursor:'pointer',fontSize:isMobile?12:13,fontWeight:600,
                         background:detailTab===k?C.blue:'transparent',color:detailTab===k?'#fff':C.muted,transition:'all 0.2s'}}>
                       {l}
                     </button>
@@ -315,7 +317,7 @@ export default function ClinicianDashboard() {
                 )}
 
                 {detailTab==='readings' && (
-                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden'}}>
+                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,overflow:'hidden',minWidth:0}}>
                     <div style={{padding:'14px 22px',borderBottom:'1px solid '+C.border,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <h3 style={{fontSize:14,fontWeight:700,color:C.text,margin:0}}>Glucose Readings</h3>
                       <span style={{fontSize:11,color:C.muted,background:C.bg,padding:'2px 10px',borderRadius:20,border:'1px solid '+C.border}}>{detail.readings?.length||0} records</span>
@@ -323,7 +325,8 @@ export default function ClinicianDashboard() {
                     {!detail.readings?.length ? (
                       <div style={{padding:32,textAlign:'center',color:C.muted,fontSize:13}}>No readings recorded yet</div>
                     ) : (
-                      <table style={{width:'100%',borderCollapse:'collapse'}}>
+                      <div style={{overflowX:'auto'}}>
+                      <table style={{width:'100%',minWidth:isMobile?560:'auto',borderCollapse:'collapse'}}>
                         <thead>
                           <tr style={{background:'#F8FAFB'}}>
                             {['Date & Time','Glucose','Context','Status'].map(h=>(
@@ -345,6 +348,7 @@ export default function ClinicianDashboard() {
                           })}
                         </tbody>
                       </table>
+                      </div>
                     )}
                   </div>
                 )}

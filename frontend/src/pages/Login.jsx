@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import useIsMobile from '../hooks/useIsMobile'
 
 const F = "'Plus Jakarta Sans',-apple-system,sans-serif"
 
@@ -22,6 +23,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [showPw, setShowPw] = useState(false)
   const [focus, setFocus] = useState('')
+  const isMobile = useIsMobile()
 
   const submit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
@@ -43,10 +45,10 @@ export default function Login() {
   })
 
   return (
-    <div style={{minHeight:'100vh',display:'grid',gridTemplateColumns:'1fr 1fr',fontFamily:F}}>
+    <div style={{minHeight:'100vh',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',fontFamily:F}}>
 
       {/* Left brand panel */}
-      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#00C48C 0%,#00A878 45%,#047857 100%)',display:'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
+      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#00C48C 0%,#00A878 45%,#047857 100%)',display:isMobile?'none':'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
         {/* decorative circles */}
         <div style={{position:'absolute',width:420,height:420,borderRadius:'50%',background:'rgba(255,255,255,0.07)',top:-120,right:-120}}/>
         <div style={{position:'absolute',width:280,height:280,borderRadius:'50%',background:'rgba(255,255,255,0.06)',bottom:-80,left:-60}}/>

@@ -11,70 +11,34 @@ predict_bp = Blueprint("predict", __name__)
 
 
 def _build_features(patient) -> dict:
-    """Map patient profile to the 21 BRFSS feature names."""
+    """Map patient profile + glucose readings to the 8 model features."""
     from ..models.glucose_reading import GlucoseReading
     readings = GlucoseReading.query.filter_by(patient_id=patient.id)\
                .order_by(GlucoseReading.measured_at.desc()).limit(7).all()
-    avg_glucose = sum(r.glucose_mmol for r in readings) / len(readings) if readings else 5.5
+    avg_glucose_mmol = sum(r.glucose_mmol for r in readings) / len(readings) if readings else 5.5
 
-    bmi = patient.bmi or 25.0
+    # Convert mmol/L -> mg/dL (dataset unit)
+    glucose_mgdl = avg_glucose_mmol * 18.0
 
-    # Age mapping: use date_of_birth if available
-    age_code = 7  # default ~45-49
+    # Estimate HbA1c from average glucose (ADA formula, same as frontend)
+    hba1c = (avg_glucose_mmol + 2.59) / 1.59
+
+    # Age from date_of_birth
+    age = 45
     if patient.date_of_birth:
         from datetime import date
         age = (date.today() - patient.date_of_birth).days // 365
-        if age < 25:   age_code = 2
-        elif age < 30: age_code = 3
-        elif age < 35: age_code = 4
-        elif age < 40: age_code = 5
-        elif age < 45: age_code = 6
-        elif age < 50: age_code = 7
-        elif age < 55: age_code = 8
-        elif age < 60: age_code = 9
-        elif age < 65: age_code = 10
-        elif age < 70: age_code = 11
-        elif age < 75: age_code = 12
-        else:          age_code = 13
-
-    # GenHlth: derive from glucose level
-    # Normal <7.8, Elevated 7.8-11.1, High >11.1
-    if avg_glucose < 7.8:
-        gen_hlth = 2    # Good
-        phys_hlth = 0
-    elif avg_glucose < 11.1:
-        gen_hlth = 3    # Fair
-        phys_hlth = 10
-    elif avg_glucose < 16.0:
-        gen_hlth = 4    # Poor
-        phys_hlth = 20
-    else:
-        gen_hlth = 5    # Very poor
-        phys_hlth = 30
 
     return {
-        "HighBP":               int(patient.has_hypertension),
-        "HighChol":             int(patient.has_high_chol),
-        "CholCheck":            1,
-        "BMI":                  bmi,
-        "Smoker":               int(patient.smoker),
-        "Stroke":               0,
-        "HeartDiseaseorAttack": 0,
-        "PhysActivity":         int(patient.physical_activity),
-        "Fruits":               1,
-        "Veggies":              1,
-        "HvyAlcoholConsump":    0,
-        "AnyHealthcare":        1,
-        "NoDocbcCost":          0,
-        "GenHlth":              gen_hlth,
-        "MentHlth":             0,
-        "PhysHlth":             phys_hlth,
-        "DiffWalk":             int(avg_glucose > 13.0),
-        "Sex":                  1 if patient.gender == "male" else 0,
-        "Age":                  age_code,
-        "Education":            5,
-        "Income":               5,
-    }, avg_glucose
+        "gender":               1 if patient.gender == "male" else 0,
+        "age":                  age,
+        "hypertension":         int(patient.has_hypertension),
+        "heart_disease":        0,
+        "smoker":               int(patient.smoker),
+        "bmi":                  patient.bmi or 25.0,
+        "HbA1c_level":          round(hba1c, 1),
+        "blood_glucose_level":  round(glucose_mgdl, 0),
+    }, avg_glucose_mmol
 
 
 def _glucose_adjustment(avg_glucose: float, base_prob: float) -> float:
@@ -189,9 +153,8 @@ def run_assessment():
     features, avg_glucose = _build_features(patient)
     result = predict_risk(features)
 
-    # Apply glucose adjustment to base ML probability
-    adjusted_prob = _glucose_adjustment(avg_glucose, result["probability"])
-    result["probability"] = adjusted_prob
+    # v2 model uses glucose directly as a feature - no manual adjustment needed
+    adjusted_prob = result["probability"]
 
     # Re-derive risk level from adjusted probability
     if adjusted_prob < 0.30:
