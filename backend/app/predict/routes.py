@@ -41,35 +41,6 @@ def _build_features(patient) -> dict:
     }, avg_glucose_mmol
 
 
-def _glucose_adjustment(avg_glucose: float, base_prob: float) -> float:
-    """
-    Adjust base ML probability using average glucose reading.
-    Clinical thresholds (mmol/L):
-      Normal fasting:    < 5.6
-      Pre-diabetic:      5.6 – 6.9
-      Diabetic range:    >= 7.0
-      High post-meal:    >= 11.1
-    """
-    if avg_glucose < 5.6:
-        # Normal — slight reduction
-        adjustment = -0.05
-    elif avg_glucose < 7.0:
-        # Pre-diabetic range
-        adjustment = 0.05
-    elif avg_glucose < 11.1:
-        # Diabetic range
-        adjustment = 0.15
-    elif avg_glucose < 16.0:
-        # High
-        adjustment = 0.25
-    else:
-        # Very high
-        adjustment = 0.40
-
-    adjusted = base_prob + adjustment
-    return max(0.01, min(0.99, adjusted))
-
-
 def _get_recommendation(risk_level: str, top_factors: list, avg_glucose: float) -> str:
     """Generate recommendation via Groq API, fall back to rule-based if unavailable."""
     groq_key = os.getenv("GROQ_API_KEY", "")
@@ -111,14 +82,14 @@ def _get_recommendation(risk_level: str, top_factors: list, avg_glucose: float) 
 
     # Smart SHAP-driven fallback
     _FACTOR_ADVICE = {
-        "HighBP":    "Monitor your blood pressure regularly and reduce sodium intake.",
-        "BMI":       "Maintain a healthy weight through balanced diet and regular exercise.",
-        "Age":       "Schedule regular health screenings as age is a key risk factor.",
-        "GenHlth":   "Focus on improving your general health through lifestyle changes.",
-        "PhysHlth":  "Address any physical health issues with your doctor.",
-        "PhysActivity": "Aim for at least 150 minutes of moderate exercise per week.",
-        "Smoker":    "If you smoke, seek support to quit — this significantly reduces risk.",
-        "HighChol":  "Reduce saturated fat intake and increase fiber to manage cholesterol.",
+        "blood_glucose_level": "Your recent glucose readings are a key driver of your risk. Focus on reducing sugar and refined carbohydrates, and monitor regularly.",
+        "HbA1c_level":         "Your estimated HbA1c suggests sustained elevated glucose. Consistent dietary control over the next 3 months can improve it.",
+        "bmi":                 "Maintain a healthy weight through balanced diet and regular exercise.",
+        "age":                 "Schedule regular health screenings as age is a key risk factor.",
+        "hypertension":        "Monitor your blood pressure regularly and reduce sodium intake.",
+        "heart_disease":       "Manage cardiovascular health with your doctor, as it compounds diabetes risk.",
+        "smoker":              "If you smoke, seek support to quit - this significantly reduces risk.",
+        "gender":              "Discuss gender-specific diabetes risk factors with your healthcare provider.",
     }
 
     recommendations = []
@@ -142,13 +113,13 @@ def _get_recommendation(risk_level: str, top_factors: list, avg_glucose: float) 
 @predict_bp.route("/assess", methods=["POST"])
 @patient_required
 def run_assessment():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
 
     try:
         from ml.predict import predict_risk
     except ImportError:
-        return jsonify({"error": "ML model not available. Run notebooks/train.py first."}), 503
+        return jsonify({"error": "ML model not available. Run notebooks/train_v2.py first."}), 503
 
     features, avg_glucose = _build_features(patient)
     result = predict_risk(features)
@@ -186,7 +157,7 @@ def run_assessment():
 @predict_bp.route("/latest", methods=["GET"])
 @patient_required
 def get_latest():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     assessment = RiskAssessment.query.filter_by(patient_id=patient.id)\
                  .order_by(RiskAssessment.created_at.desc()).first()

@@ -14,7 +14,7 @@ clinician_bp = Blueprint("clinician", __name__)
 @clinician_bp.route("/patients", methods=["GET"])
 @doctor_required
 def get_patients():
-    user_id     = get_jwt_identity()
+    user_id     = int(get_jwt_identity())
     risk_filter = request.args.get("risk")
     patients    = Patient.query.filter_by(doctor_id=user_id).all()
     result = []
@@ -36,7 +36,7 @@ def get_patients():
 @clinician_bp.route("/patients/<int:patient_id>", methods=["GET"])
 @doctor_required
 def get_patient_detail(patient_id):
-    user_id     = get_jwt_identity()
+    user_id     = int(get_jwt_identity())
     patient     = Patient.query.filter_by(id=patient_id, doctor_id=user_id).first_or_404()
     readings    = GlucoseReading.query.filter_by(patient_id=patient.id)\
                   .order_by(GlucoseReading.measured_at.desc()).limit(30).all()
@@ -55,7 +55,7 @@ def get_patient_detail(patient_id):
 @clinician_bp.route("/assign/<int:patient_id>", methods=["POST"])
 @doctor_required
 def assign_patient(patient_id):
-    user_id        = get_jwt_identity()
+    user_id        = int(get_jwt_identity())
     patient        = Patient.query.get_or_404(patient_id)
     patient.doctor_id = user_id
     db.session.commit()
@@ -65,7 +65,7 @@ def assign_patient(patient_id):
 @clinician_bp.route("/stats", methods=["GET"])
 @doctor_required
 def get_stats():
-    user_id  = get_jwt_identity()
+    user_id  = int(get_jwt_identity())
     patients = Patient.query.filter_by(doctor_id=user_id).all()
     counts   = {"low": 0, "moderate": 0, "high": 0, "very_high": 0, "unassessed": 0}
     for p in patients:
@@ -82,7 +82,7 @@ def get_stats():
 @doctor_required
 def add_note(patient_id):
     from ..models.doctor_note import DoctorNote
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
     content = (data.get("content") or "").strip()
     if not content:

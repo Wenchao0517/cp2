@@ -14,7 +14,7 @@ patients_bp = Blueprint("patients", __name__)
 @patients_bp.route("/profile", methods=["GET"])
 @patient_required
 def get_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     return jsonify({"patient": patient.to_dict()}), 200
 
@@ -22,7 +22,7 @@ def get_profile():
 @patients_bp.route("/profile", methods=["PUT"])
 @patient_required
 def update_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     data = request.get_json()
     fields = ["height_cm", "weight_kg", "gender", "has_hypertension",
@@ -40,7 +40,7 @@ def update_profile():
 @patients_bp.route("/glucose", methods=["POST"])
 @patient_required
 def add_glucose():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     data = request.get_json()
     glucose_val = data.get("glucose_mmol")
@@ -68,7 +68,7 @@ def add_glucose():
 @patients_bp.route("/glucose", methods=["GET"])
 @patient_required
 def get_glucose_history():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     limit = min(int(request.args.get("limit", 30)), 100)
     readings = GlucoseReading.query.filter_by(patient_id=patient.id)\
@@ -79,7 +79,7 @@ def get_glucose_history():
 @patients_bp.route("/assessments", methods=["GET"])
 @patient_required
 def get_assessments():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     patient = Patient.query.filter_by(user_id=user_id).first_or_404()
     assessments = RiskAssessment.query.filter_by(patient_id=patient.id)\
                   .order_by(RiskAssessment.created_at.desc()).limit(10).all()
@@ -88,7 +88,7 @@ def get_assessments():
 @patients_bp.route('/glucose/<int:reading_id>', methods=['DELETE'])
 @patient_required
 def delete_glucose(reading_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     from ..models.user import User
     user = User.query.get(user_id)
     reading = GlucoseReading.query.filter_by(id=reading_id, patient_id=user.patient_profile.id).first()
@@ -106,7 +106,7 @@ def delete_glucose(reading_id):
 def get_my_notes():
     from ..models.doctor_note import DoctorNote
     from ..models.user import User
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     notes = DoctorNote.query.filter_by(patient_id=user.patient_profile.id)\
             .order_by(DoctorNote.created_at.desc()).limit(10).all()
@@ -125,7 +125,7 @@ def list_doctors():
 @patient_required
 def select_doctor():
     from ..models.user import User
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     data = request.get_json()
     doctor_id = data.get("doctor_id")
@@ -144,7 +144,7 @@ def select_doctor():
 def reply_note():
     from ..models.doctor_note import DoctorNote
     from ..models.user import User
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     patient = user.patient_profile
     if not patient.doctor_id:

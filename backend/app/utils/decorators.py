@@ -9,7 +9,7 @@ def role_required(*roles):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             verify_jwt_in_request()
-            user_id = get_jwt_identity()
+            user_id = int(get_jwt_identity())
             user = User.query.get(user_id)
             if not user or user.role not in roles:
                 return jsonify({"error": "Access denied"}), 403
@@ -22,7 +22,7 @@ def patient_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user or user.role != "patient":
             return jsonify({"error": "Patients only"}), 403
@@ -34,7 +34,7 @@ def doctor_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user or user.role != "doctor":
             return jsonify({"error": "Doctors only"}), 403

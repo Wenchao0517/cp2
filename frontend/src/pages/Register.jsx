@@ -32,7 +32,7 @@ export default function Register() {
     setLoading(false)
   }
 
-  const pwStrength = form.password.length === 0 ? 0 : form.password.length < 6 ? 1 : form.password.length < 10 ? 2 : 3
+  const pwStrength = form.password.length === 0 ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : 3
   const pwColors = ['#E8EDF2','#FF6B6B','#FFB020','#00C48C']
   const pwLabels = ['','Weak','Medium','Strong']
 
@@ -127,10 +127,10 @@ export default function Register() {
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>PASSWORD</label>
             <div style={{position:'relative',marginBottom:8}}>
               <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='pw'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoLock/></span>
-              <input type="password" required minLength={6} value={form.password}
+              <input type="password" required minLength={8} value={form.password}
                 onChange={e=>setForm({...form,password:e.target.value})}
                 onFocus={()=>setFocus('pw')} onBlur={()=>setFocus('')}
-                placeholder="Min. 6 characters" style={inputStyle('pw')}/>
+                placeholder="Min. 8 characters" style={inputStyle('pw')}/>
             </div>
 
             {/* Password strength */}

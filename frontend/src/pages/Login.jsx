@@ -70,7 +70,7 @@ export default function Login() {
           </p>
 
           {[
-            [<IcoBrain key="b"/>, 'ML risk prediction', 'XGBoost model trained on 253,680 health records'],
+            [<IcoBrain key="b"/>, 'ML risk prediction', 'Random Forest model trained on 100,000 clinical records'],
             [<IcoChart key="c"/>, 'Glucose analytics', 'Trends, alerts and estimated HbA1c at a glance'],
             [<IcoShield key="s"/>, 'Clinician connected', 'Share your data securely with your doctor'],
           ].map(([icon, title, sub], i) => (
