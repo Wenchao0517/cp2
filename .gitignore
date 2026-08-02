@@ -30,10 +30,7 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
-backend/.env
-
-backend/.env
-
 __pycache__/
 *.pyc
 backend/instance/
+
