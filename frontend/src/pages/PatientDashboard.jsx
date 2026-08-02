@@ -7,12 +7,22 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const F = "'Plus Jakarta Sans',-apple-system,sans-serif"
 const C = {
-  green:'#00C48C', red:'#FF6B6B', yellow:'#FFB020', blue:'#3B82F6', purple:'#8B5CF6',
-  bg:'#F6F9F8', card:'#FFFFFF', border:'#E8EDF2', text:'#1A2332', muted:'#6B7A8F',
-  low:'#00C48C', moderate:'#FFB020', high:'#FF6B6B', very_high:'#DC2626',
+  green:'#1A1A1A', brand:'#FF7A59', coral:'#FF7A59', red:'#FF6B6B', yellow:'#FFB020', blue:'#3B82F6', purple:'#8B5CF6',
+  bg:'#FDF7F2', card:'#FFFFFF', border:'#F0E6DE', text:'#171412', muted:'#8A7E76',
+  low:'#12B886', moderate:'#FFB020', high:'#FF6B6B', very_high:'#DC2626',
+  shadow:'0 10px 30px rgba(180,140,110,0.10)',
+  shadowLg:'0 18px 45px rgba(180,140,110,0.14)',
 }
 
 /* ---------- Professional SVG icons ---------- */
+// Split an assessment recommendation into lifestyle advice and diet advice
+const splitRec = (text) => {
+  if (!text) return { lifestyle: '', diet: '' }
+  const parts = text.split(/Diet Suggestions:?/i)
+  if (parts.length < 2) return { lifestyle: text.trim(), diet: '' }
+  return { lifestyle: parts[0].trim(), diet: parts.slice(1).join(' ').trim() }
+}
+
 const Ico = {
   logo: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
   drop: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>,
@@ -30,6 +40,7 @@ const Ico = {
   out: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
   grid: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+  apple: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7c-1.5-2.5-4-3-5.5-1.8C4.6 6.6 4 9.5 5 13c.9 3.2 2.6 6 4.4 6 .9 0 1.6-.5 2.6-.5s1.7.5 2.6.5c1.8 0 3.5-2.8 4.4-6 1-3.5.4-6.4-1.5-7.8C15.9 4 13.5 4.5 12 7z"/><path d="M12 7V4.5"/><path d="M12 4.5c1-1.5 2.5-2 3.5-1.8"/></svg>,
   msg2: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   msg: <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
 }
@@ -60,7 +71,7 @@ const RiskGauge = ({ probability, risk_level }) => {
 const StatCard = ({ label, value, unit, color, icon }) => {
   const isMobile = useIsMobile()
   return (
-  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:isMobile?'13px 13px':'18px 20px',display:'flex',alignItems:'center',gap:isMobile?9:14,transition:'transform 0.15s, box-shadow 0.15s',cursor:'default'}}
+  <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:isMobile?'15px 16px':'22px 24px',display:'flex',alignItems:'center',gap:isMobile?9:14,transition:'transform 0.15s, box-shadow 0.15s',cursor:'default'}}
     onMouseOver={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 24px rgba(26,35,50,0.07)'}}
     onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none'}}>
     <div style={{width:isMobile?36:46,height:isMobile?36:46,borderRadius:11,background:color+'16',display:'flex',alignItems:'center',justifyContent:'center',color:color,flexShrink:0}}>{icon}</div>
@@ -174,12 +185,12 @@ export default function PatientDashboard() {
 
       <nav style={{background:'rgba(255,255,255,0.9)',backdropFilter:'blur(12px)',borderBottom:'1px solid '+C.border,padding:isMobile?'0 14px':'0 28px',height:64,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <div style={{width:36,height:36,borderRadius:11,background:'linear-gradient(135deg,#00C48C,#00A878)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 12px rgba(0,196,140,0.35)'}}>{Ico.logo}</div>
+          <div style={{width:36,height:36,borderRadius:11,background:'linear-gradient(135deg,#FF7A59,#FF5C7A)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 12px rgba(23,20,18,0.20)'}}>{Ico.logo}</div>
           <span style={{fontWeight:800,fontSize:18,color:C.text,letterSpacing:'-0.4px'}}>DiabetesGuard</span>
-          {!isMobile && <span style={{fontSize:11,background:'#00C48C16',color:'#00A878',padding:'3px 10px',borderRadius:20,fontWeight:700,marginLeft:4,letterSpacing:'0.5px'}}>PATIENT</span>}
+          {!isMobile && <span style={{fontSize:11,background:'#FF7A5916',color:'#E85D3D',padding:'3px 10px',borderRadius:20,fontWeight:700,marginLeft:4,letterSpacing:'0.5px'}}>PATIENT</span>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:isMobile?7:10}}>
-          <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#00C48C,#00A878)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:14}}>{user?.full_name?.[0]?.toUpperCase()}</div>
+          <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#FF7A59,#FF5C7A)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:14}}>{user?.full_name?.[0]?.toUpperCase()}</div>
           {!isMobile && <span style={{fontSize:14,fontWeight:700,color:C.text}}>{user?.full_name}</span>}
           <button onClick={()=>navigate('/profile')}
             style={{display:'flex',alignItems:'center',gap:6,padding:isMobile?'8px 10px':'8px 16px',background:'#3B82F60D',color:C.blue,border:'1.5px solid #3B82F640',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:F,transition:'all 0.15s'}}
@@ -220,7 +231,7 @@ export default function PatientDashboard() {
         </div>
 
         {(!profileDone || readings.length===0 || !assessment) && (
-          <div style={{background:'linear-gradient(135deg,#F0FDF8,#F6FEFB)',border:'1.5px solid #00C48C40',borderRadius:18,padding:'20px 24px',marginBottom:24}}>
+          <div style={{background:'linear-gradient(135deg,#FFF4EF,#FFFAF7)',border:'1.5px solid #FF7A5940',borderRadius:22,padding:'24px 28px',marginBottom:30}}>
             <div style={{fontSize:15,fontWeight:800,color:C.text,marginBottom:4}}>Get started with DiabetesGuard</div>
             <div style={{fontSize:13,color:C.muted,marginBottom:16,fontWeight:500}}>Complete these steps to unlock your personalised risk assessment</div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
@@ -230,11 +241,11 @@ export default function PatientDashboard() {
                 {done: !!assessment, num:'3', title:'Run your assessment', sub:'Get your AI-powered risk score', action:runAssessment},
               ].map((s,i)=>(
                 <div key={i} onClick={s.done?undefined:s.action}
-                  style={{display:'flex',alignItems:'center',gap:12,padding:'14px 16px',background:'#fff',border:'1.5px solid '+(s.done?'#00C48C50':C.border),borderRadius:14,cursor:s.done?'default':'pointer',opacity:s.done?0.75:1,transition:'all 0.15s'}}
-                  onMouseOver={e=>{if(!s.done)e.currentTarget.style.borderColor='#00C48C'}}
+                  style={{display:'flex',alignItems:'center',gap:12,padding:'14px 16px',background:'#fff',border:'1.5px solid '+(s.done?'#FF7A5950':C.border),borderRadius:14,cursor:s.done?'default':'pointer',opacity:s.done?0.75:1,transition:'all 0.15s'}}
+                  onMouseOver={e=>{if(!s.done)e.currentTarget.style.borderColor='#FF7A59'}}
                   onMouseOut={e=>{if(!s.done)e.currentTarget.style.borderColor=C.border}}>
                   <div style={{width:32,height:32,borderRadius:'50%',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:14,
-                    background:s.done?'#00C48C':'#F0F4F3',color:s.done?'#fff':C.muted}}>
+                    background:s.done?'#FF7A59':'#F0F4F3',color:s.done?'#fff':C.muted}}>
                     {s.done?'✓':s.num}
                   </div>
                   <div>
@@ -247,36 +258,36 @@ export default function PatientDashboard() {
           </div>
         )}
 
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(3,1fr)',gap:isMobile?10:14,marginBottom:14}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(3,1fr)',gap:isMobile?12:18,marginBottom:18}}>
           <StatCard label="Latest reading" value={readings[0]?.glucose_mmol??'--'} unit="mmol/L" color={C.green} icon={Ico.drop}/>
           <StatCard label="7-day average" value={avg} unit="mmol/L" color={C.blue} icon={Ico.chart}/>
           <StatCard label="7-day Max" value={maxGlucose} unit="mmol/L" color={C.red} icon={Ico.up}/>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(3,1fr)',gap:isMobile?10:14,marginBottom:26}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(3,1fr)',gap:isMobile?12:18,marginBottom:34}}>
           <StatCard label="7-day Min" value={minGlucose} unit="mmol/L" color={C.purple} icon={Ico.down}/>
           <StatCard label="Est. HbA1c" value={hba1c} unit="%" color={C.yellow} icon={Ico.flask}/>
           <StatCard label="Total readings" value={readings.length} unit="" color={C.muted} icon={Ico.list}/>
         </div>
 
-        <div style={{display:'flex',gap:4,marginBottom:22,background:C.card,border:'1px solid '+C.border,borderRadius:13,padding:4,width:isMobile?'100%':'fit-content'}}>
+        <div style={{display:'flex',gap:4,marginBottom:28,background:C.card,border:'1px solid '+C.border,borderRadius:13,padding:4,width:isMobile?'100%':'fit-content'}}>
           {[['overview','Overview',Ico.grid],['log','Log Reading',Ico.plus],['history','History',Ico.list]].map(([k,l,ico])=>(
             <button key={k} onClick={()=>setTab(k)}
               style={{display:'flex',alignItems:'center',justifyContent:'center',gap:isMobile?5:7,padding:isMobile?'9px 8px':'9px 20px',flex:isMobile?1:'none',borderRadius:10,border:'none',cursor:'pointer',fontSize:isMobile?12.5:13.5,fontWeight:700,fontFamily:F,transition:'all 0.2s',whiteSpace:'nowrap',
-                background:tab===k?'linear-gradient(135deg,#00C48C,#00A878)':'transparent',
+                background:tab===k?'linear-gradient(135deg,#FF7A59,#FF5C7A)':'transparent',
                 color:tab===k?'#fff':C.muted,
-                boxShadow:tab===k?'0 4px 12px rgba(0,196,140,0.3)':'none'}}>
+                boxShadow:tab===k?'0 4px 12px rgba(23,20,18,0.18)':'none'}}>
               {ico}{l}
             </button>
           ))}
         </div>
 
         {tab==='overview' && (
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?14:18}}>
-            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?18:24}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
                 <h2 style={{fontSize:16,fontWeight:800,color:C.text,margin:0,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.green}}>{Ico.target}</span> Risk Assessment</h2>
                 <button onClick={runAssessment} disabled={loading}
-                  style={{display:'flex',alignItems:'center',gap:6,padding:'8px 18px',background:'linear-gradient(135deg,#00C48C,#00A878)',color:'#fff',border:'none',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',opacity:loading?0.7:1,fontFamily:F,boxShadow:'0 4px 12px rgba(0,196,140,0.3)'}}>
+                  style={{display:'flex',alignItems:'center',gap:6,padding:'8px 18px',background:'linear-gradient(135deg,#FF7A59,#FF5C7A)',color:'#fff',border:'none',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',opacity:loading?0.7:1,fontFamily:F,boxShadow:'0 4px 12px rgba(23,20,18,0.18)'}}>
                   {Ico.refresh}{loading?'Updating...':'Update'}
                 </button>
               </div>
@@ -288,7 +299,7 @@ export default function PatientDashboard() {
                     {assessment.top_factors?.slice(0,3).map((f,i)=>(
                       <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:i<2?'1px solid '+C.border:'none'}}>
                         <span style={{fontSize:13.5,color:C.text,fontWeight:600}}>{f.feature}</span>
-                        <span style={{fontSize:12,fontWeight:800,color:f.direction==='increase'?C.red:C.green,background:f.direction==='increase'?'#FF6B6B14':'#00C48C14',padding:'4px 12px',borderRadius:20}}>
+                        <span style={{fontSize:12,fontWeight:800,color:f.direction==='increase'?C.red:C.green,background:f.direction==='increase'?'#FF6B6B14':'#FF7A5914',padding:'4px 12px',borderRadius:20}}>
                           {f.direction==='increase'?'Risk factor':'Protective'}
                         </span>
                       </div>
@@ -304,11 +315,11 @@ export default function PatientDashboard() {
               )}
             </div>
 
-            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28}}>
               <h2 style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:16,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.yellow}}>{Ico.bulb}</span> Recommendations</h2>
               {assessment?.recommendation ? (
-                <div style={{fontSize:13.5,lineHeight:1.85,color:'#374151',background:'linear-gradient(135deg,#F0FDF8,#F6FEFB)',borderRadius:14,padding:18,borderLeft:'3px solid '+C.green}}>
-                  {assessment.recommendation.split('\n').map((line,i)=>line.trim()&&<p key={i} style={{margin:'0 0 9px'}}>{line.replace(/\*\*/g,'')}</p>)}
+                <div style={{fontSize:13.5,lineHeight:1.85,color:'#374151',background:'linear-gradient(135deg,#FFF4EF,#FFFAF7)',borderRadius:18,padding:18,borderLeft:'3px solid '+C.green}}>
+                  {splitRec(assessment.recommendation).lifestyle.split('\n').map((line,i)=>line.trim()&&<p key={i} style={{margin:'0 0 9px'}}>{line.replace(/\*\*/g,'')}</p>)}
                 </div>
               ) : (
                 <div style={{textAlign:'center',padding:'36px 0',color:C.muted}}>
@@ -318,11 +329,20 @@ export default function PatientDashboard() {
               )}
             </div>
 
+            {assessment?.recommendation && splitRec(assessment.recommendation).diet && (
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28,gridColumn:'1/-1'}}>
+                <h2 style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:16,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.yellow}}>{Ico.apple}</span> Diet Suggestions</h2>
+                <div style={{fontSize:13.5,lineHeight:1.85,color:'#374151',background:'linear-gradient(135deg,#FFFBF0,#FFFDF7)',borderRadius:18,padding:18,borderLeft:'3px solid '+C.yellow}}>
+                  {splitRec(assessment.recommendation).diet.split('\n').map((line,i)=>line.trim()&&<p key={i} style={{margin:'0 0 9px'}}>{line.replace(/\*\*/g,'')}</p>)}
+                </div>
+              </div>
+            )}
+
             {(doctorNotes.length>0 || true) && (
-              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24,gridColumn:'1/-1'}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28,gridColumn:'1/-1'}}>
                 <h2 style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:16,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.blue}}>{Ico.msg2}</span> Messages from your doctor</h2>
                 {doctorNotes.slice(0,5).map(n=>(
-                  <div key={n.id} style={{padding:'14px 18px',background:n.sender==='patient'?'#00C48C08':'#3B82F608',borderRadius:14,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
+                  <div key={n.id} style={{padding:'14px 18px',background:n.sender==='patient'?'#FF7A5908':'#3B82F608',borderRadius:14,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
                     <div style={{fontSize:13.5,color:'#374151',lineHeight:1.75}}>{n.content}</div>
                     <div style={{fontSize:11.5,color:C.muted,marginTop:7,fontWeight:700}}>{n.sender==='patient'?'You':'Dr. '+n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
                   </div>
@@ -331,7 +351,7 @@ export default function PatientDashboard() {
                   <input value={replyText} onChange={e=>setReplyText(e.target.value)}
                     onKeyDown={e=>{if(e.key==='Enter')sendReply()}}
                     placeholder='Write a message to your doctor...'
-                    style={{flex:1,padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',fontFamily:'inherit',background:'#FBFDFC'}}/>
+                    style={{flex:1,padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',fontFamily:'inherit',background:'#FFFBF8'}}/>
                   <button onClick={sendReply} disabled={replySending||!replyText.trim()}
                     style={{padding:'12px 24px',background:replyText.trim()?'linear-gradient(135deg,#3B82F6,#2563EB)':'#E8EDF2',color:replyText.trim()?'#fff':'#9CA3AF',border:'none',borderRadius:12,fontSize:13.5,fontWeight:700,cursor:replyText.trim()?'pointer':'default',fontFamily:'inherit'}}>
                     {replySending?'Sending...':'Send'}
@@ -341,7 +361,7 @@ export default function PatientDashboard() {
             )}
 
             {riskChartData.length>1 && (
-              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24,gridColumn:'1/-1'}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28,gridColumn:'1/-1'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
                   <h2 style={{fontSize:16,fontWeight:800,color:C.text,margin:0,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.red}}>{Ico.target}</span> Risk History</h2>
                   <span style={{fontSize:12,color:C.muted,fontWeight:600}}>{riskChartData.length} assessments</span>
@@ -361,7 +381,7 @@ export default function PatientDashboard() {
             )}
 
             {chartData.length>1 && (
-              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:24,gridColumn:'1/-1'}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28,gridColumn:'1/-1'}}>
                 <h2 style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:18,display:'flex',alignItems:'center',gap:8}}><span style={{color:C.green}}>{Ico.up}</span> Glucose Trend</h2>
                 <ResponsiveContainer width="100%" height={210}>
                   <LineChart data={chartData}>
@@ -387,7 +407,7 @@ export default function PatientDashboard() {
 
         {tab==='log' && (
           <div style={{maxWidth:480}}>
-            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:20,padding:28}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:26,padding:28}}>
               <h2 style={{fontSize:18,fontWeight:800,color:C.text,marginBottom:6}}>Log a Reading</h2>
               <p style={{fontSize:13,color:C.muted,marginBottom:24,fontWeight:500}}>Enter your blood glucose from your glucometer</p>
               <form onSubmit={addReading}>
@@ -395,14 +415,14 @@ export default function PatientDashboard() {
                   <label style={{display:'block',fontSize:11.5,fontWeight:800,color:C.muted,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.8px'}}>Glucose Level (mmol/L)</label>
                   <input type="number" step="0.1" min="2.5" max="30" required value={form.glucose_mmol}
                     onChange={e=>setForm({...form,glucose_mmol:e.target.value})} placeholder="e.g. 5.6"
-                    style={{width:'100%',padding:'14px 16px',border:'2px solid '+C.border,borderRadius:14,fontSize:22,fontWeight:800,color:C.text,outline:'none',boxSizing:'border-box',fontFamily:F,background:'#FBFDFC'}}/>
+                    style={{width:'100%',padding:'14px 16px',border:'2px solid '+C.border,borderRadius:14,fontSize:22,fontWeight:800,color:C.text,outline:'none',boxSizing:'border-box',fontFamily:F,background:'#FFFBF8'}}/>
                 </div>
                 <div style={{marginBottom:20}}>
                   <label style={{display:'block',fontSize:11.5,fontWeight:800,color:C.muted,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.8px'}}>Meal Context</label>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                     {[['fasting','Fasting'],['pre_meal','Pre-meal'],['post_meal','Post-meal (2hr)'],['random','Random']].map(([v,l])=>(
                       <button key={v} type="button" onClick={()=>setForm({...form,meal_context:v})}
-                        style={{padding:'11px',border:'2px solid '+(form.meal_context===v?C.green:C.border),borderRadius:12,background:form.meal_context===v?'#00C48C0D':'transparent',color:form.meal_context===v?'#00A878':C.muted,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:F,transition:'all 0.15s'}}>
+                        style={{padding:'11px',border:'2px solid '+(form.meal_context===v?C.green:C.border),borderRadius:12,background:form.meal_context===v?'#FF7A590D':'transparent',color:form.meal_context===v?'#E85D3D':C.muted,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:F,transition:'all 0.15s'}}>
                         {l}
                       </button>
                     ))}
@@ -411,11 +431,11 @@ export default function PatientDashboard() {
                 <div style={{marginBottom:24}}>
                   <label style={{display:'block',fontSize:11.5,fontWeight:800,color:C.muted,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.8px'}}>Notes (optional)</label>
                   <input value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="e.g. after breakfast"
-                    style={{width:'100%',padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:F,background:'#FBFDFC'}}/>
+                    style={{width:'100%',padding:'12px 16px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:F,background:'#FFFBF8'}}/>
                 </div>
                 <div style={{display:'flex',gap:8,marginBottom:14}}>
                   <button type="button" onClick={()=>fillDemo('normal')}
-                    style={{flex:1,padding:'9px',background:'#00C48C0D',color:'#00A878',border:'1.5px dashed #00C48C60',borderRadius:10,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:F}}>
+                    style={{flex:1,padding:'9px',background:'#FF7A590D',color:'#E85D3D',border:'1.5px dashed #FF7A5960',borderRadius:10,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:F}}>
                     Fill normal sample
                   </button>
                   <button type="button" onClick={()=>fillDemo('high')}
@@ -424,7 +444,7 @@ export default function PatientDashboard() {
                   </button>
                 </div>
                 <button type="submit" disabled={loading}
-                  style={{width:'100%',padding:'15px',background:'linear-gradient(135deg,#00C48C,#00A878)',color:'#fff',border:'none',borderRadius:14,fontSize:15.5,fontWeight:800,cursor:'pointer',opacity:loading?0.7:1,fontFamily:F,boxShadow:'0 8px 20px rgba(0,196,140,0.35)'}}>
+                  style={{width:'100%',padding:'15px',background:'linear-gradient(135deg,#FF7A59,#FF5C7A)',color:'#fff',border:'none',borderRadius:14,fontSize:15.5,fontWeight:800,cursor:'pointer',opacity:loading?0.7:1,fontFamily:F,boxShadow:'0 8px 20px rgba(23,20,18,0.20)'}}>
                   {loading?'Saving...':'Add Reading'}
                 </button>
               </form>

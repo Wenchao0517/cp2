@@ -67,13 +67,17 @@ def _get_recommendation(risk_level: str, top_factors: list, avg_glucose: float) 
                 f"Their top contributing factors are: {factor_text}. "
                 "Give exactly 3 numbered lifestyle recommendations in plain English. "
                 "Keep each recommendation to 1-2 sentences. "
+                "Then add a section headed 'Diet Suggestions:' containing exactly 3 numbered, "
+                "specific dietary suggestions appropriate for a Malaysian diet. Name real everyday "
+                "foods and practical swaps (for example choosing brown rice over white rice, or "
+                "teh tarik kosong instead of sweetened drinks). Keep each to 1-2 sentences. "
                 "Do NOT give any medical diagnosis. "
                 "End with: 'Please consult a qualified healthcare professional before making any health decisions.'"
             )
             response = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=300,
+                max_tokens=550,
                 temperature=0.7,
             )
             return response.choices[0].message.content
@@ -103,9 +107,33 @@ def _get_recommendation(risk_level: str, top_factors: list, avg_glucose: float) 
         recommendations = recommendations[:3]
 
     numbered = "\n".join(f"{i+1}. {r}" for i, r in enumerate(recommendations))
+
+    # Glucose-banded dietary guidance (Malaysian context)
+    if avg_glucose >= 7.0:
+        diet = [
+            "Replace white rice and white bread with brown rice, wholemeal bread or oats to slow glucose absorption.",
+            "Avoid sweetened drinks such as regular teh tarik, sirap bandung and packaged juices; choose kosong versions or plain water.",
+            "Fill half your plate with non-starchy vegetables (sawi, kangkung, long beans) at every main meal.",
+        ]
+    elif avg_glucose >= 5.6:
+        diet = [
+            "Reduce added sugar in drinks and kuih; ask for kurang manis when eating out.",
+            "Pair carbohydrates with protein and vegetables so meals release glucose more slowly.",
+            "Choose grilled, steamed or soup-based dishes over deep-fried options such as goreng pisang or fried chicken.",
+        ]
+    else:
+        diet = [
+            "Keep a balanced plate: one quarter carbohydrates, one quarter protein, half vegetables.",
+            "Limit sugary drinks and desserts to occasional treats rather than daily items.",
+            "Choose wholegrain options such as brown rice or wholemeal bread where available.",
+        ]
+    diet_numbered = "\n".join(f"{i+1}. {d}" for i, d in enumerate(diet))
+
     return (
         f"Here are three lifestyle recommendations for the patient:\n\n"
         f"{numbered}\n\n"
+        f"Diet Suggestions:\n\n"
+        f"{diet_numbered}\n\n"
         "Please consult a qualified healthcare professional before making any health decisions."
     )
 

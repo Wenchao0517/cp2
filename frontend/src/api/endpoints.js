@@ -12,7 +12,7 @@ export const patientAPI = {
   getProfile:    ()     => api.get('/api/patients/profile'),
   updateProfile: (data) => api.put('/api/patients/profile', data),
   addGlucose:    (data) => api.post('/api/patients/glucose', data),
-  getGlucose:    (limit=30) => api.get('/api/patients/glucose', { params: { limit } }),
+  getGlucose:    (limit=100) => api.get('/api/patients/glucose', { params: { limit } }),
   getAssessments:()     => api.get('/api/patients/assessments'),
   deleteGlucose: (id)   => api.delete('/api/patients/glucose/' + id),
   getNotes:      ()     => api.get('/api/patients/notes'),

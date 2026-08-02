@@ -33,21 +33,21 @@ export default function Register() {
   }
 
   const pwStrength = form.password.length === 0 ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : 3
-  const pwColors = ['#E8EDF2','#FF6B6B','#FFB020','#00C48C']
+  const pwColors = ['#F0E6DE','#FF6B6B','#FFB020','#FF7A59']
   const pwLabels = ['','Weak','Medium','Strong']
 
   const inputStyle = (name) => ({
     width:'100%', padding:'13px 14px 13px 42px', borderRadius:12, fontSize:14.5, fontFamily:F,
-    border:'2px solid ' + (focus===name ? '#00C48C' : '#E8EDF2'),
+    border:'2px solid ' + (focus===name ? '#FF7A59' : '#F0E6DE'),
     outline:'none', boxSizing:'border-box', transition:'border 0.2s, box-shadow 0.2s',
-    boxShadow: focus===name ? '0 0 0 4px #00C48C1A' : 'none', background:'#FBFDFC'
+    boxShadow: focus===name ? '0 0 0 4px #FF7A591A' : 'none', background:'#FFFBF8'
   })
 
   return (
     <div style={{minHeight:'100vh',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',fontFamily:F}}>
 
       {/* Left brand panel */}
-      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#00C48C 0%,#00A878 45%,#047857 100%)',display:isMobile?'none':'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
+      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#FF7A59 0%,#E85D3D 45%,#047857 100%)',display:isMobile?'none':'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
         <div style={{position:'absolute',width:420,height:420,borderRadius:'50%',background:'rgba(255,255,255,0.07)',top:-120,right:-120}}/>
         <div style={{position:'absolute',width:280,height:280,borderRadius:'50%',background:'rgba(255,255,255,0.06)',bottom:-80,left:-60}}/>
         <div style={{position:'absolute',width:140,height:140,borderRadius:'50%',border:'2px dashed rgba(255,255,255,0.25)',top:'15%',left:'10%'}}/>
@@ -81,8 +81,8 @@ export default function Register() {
       {/* Right form panel */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'center',background:'#fff',padding:'40px 24px',overflowY:'auto'}}>
         <div style={{width:'100%',maxWidth:400}}>
-          <h2 style={{fontSize:26,fontWeight:800,color:'#1A2332',margin:'0 0 6px',letterSpacing:'-0.5px'}}>Create account</h2>
-          <p style={{fontSize:14,color:'#6B7A8F',margin:'0 0 28px'}}>Get started in less than a minute</p>
+          <h2 style={{fontSize:26,fontWeight:800,color:'#171412',margin:'0 0 6px',letterSpacing:'-0.5px'}}>Create account</h2>
+          <p style={{fontSize:14,color:'#8A7E76',margin:'0 0 28px'}}>Get started in less than a minute</p>
 
           {error && (
             <div style={{background:'#FEF2F2',border:'1px solid #FECACA',color:'#DC2626',padding:'11px 16px',borderRadius:12,fontSize:13.5,fontWeight:600,marginBottom:20}}>
@@ -97,18 +97,18 @@ export default function Register() {
               {[['patient','Patient',<IcoPatient key="p"/>],['doctor','Doctor / Clinician',<IcoDoctor key="d"/>]].map(([v,l,ico])=>(
                 <button key={v} type="button" onClick={()=>setForm({...form,role:v})}
                   style={{padding:'14px 10px',borderRadius:12,cursor:'pointer',fontFamily:F,display:'flex',flexDirection:'column',alignItems:'center',gap:7,transition:'all 0.2s',
-                    border:'2px solid '+(form.role===v?'#00C48C':'#E8EDF2'),
-                    background:form.role===v?'#00C48C0D':'#fff',
-                    color:form.role===v?'#00A878':'#9CA3AF'}}>
+                    border:'2px solid '+(form.role===v?'#FF7A59':'#F0E6DE'),
+                    background:form.role===v?'#FF7A590D':'#fff',
+                    color:form.role===v?'#E85D3D':'#9CA3AF'}}>
                   {ico}
-                  <span style={{fontSize:13,fontWeight:700,color:form.role===v?'#00A878':'#6B7A8F'}}>{l}</span>
+                  <span style={{fontSize:13,fontWeight:700,color:form.role===v?'#E85D3D':'#8A7E76'}}>{l}</span>
                 </button>
               ))}
             </div>
 
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>FULL NAME</label>
             <div style={{position:'relative',marginBottom:18}}>
-              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='name'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoUser/></span>
+              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='name'?'#FF7A59':'#9CA3AF',transition:'color 0.2s'}}><IcoUser/></span>
               <input required value={form.full_name}
                 onChange={e=>setForm({...form,full_name:e.target.value})}
                 onFocus={()=>setFocus('name')} onBlur={()=>setFocus('')}
@@ -117,7 +117,7 @@ export default function Register() {
 
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>EMAIL</label>
             <div style={{position:'relative',marginBottom:18}}>
-              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='email'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoMail/></span>
+              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='email'?'#FF7A59':'#9CA3AF',transition:'color 0.2s'}}><IcoMail/></span>
               <input type="email" required value={form.email}
                 onChange={e=>setForm({...form,email:e.target.value})}
                 onFocus={()=>setFocus('email')} onBlur={()=>setFocus('')}
@@ -126,7 +126,7 @@ export default function Register() {
 
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>PASSWORD</label>
             <div style={{position:'relative',marginBottom:8}}>
-              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='pw'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoLock/></span>
+              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='pw'?'#FF7A59':'#9CA3AF',transition:'color 0.2s'}}><IcoLock/></span>
               <input type="password" required minLength={8} value={form.password}
                 onChange={e=>setForm({...form,password:e.target.value})}
                 onFocus={()=>setFocus('pw')} onBlur={()=>setFocus('')}
@@ -137,23 +137,23 @@ export default function Register() {
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:26}}>
               <div style={{flex:1,display:'flex',gap:4}}>
                 {[1,2,3].map(i=>(
-                  <div key={i} style={{flex:1,height:4,borderRadius:2,background:pwStrength>=i?pwColors[pwStrength]:'#E8EDF2',transition:'background 0.3s'}}/>
+                  <div key={i} style={{flex:1,height:4,borderRadius:2,background:pwStrength>=i?pwColors[pwStrength]:'#F0E6DE',transition:'background 0.3s'}}/>
                 ))}
               </div>
               {pwStrength>0 && <span style={{fontSize:11.5,fontWeight:700,color:pwColors[pwStrength]}}>{pwLabels[pwStrength]}</span>}
             </div>
 
             <button type="submit" disabled={loading}
-              style={{width:'100%',padding:'14px',background:loading?'#7DD8BC':'linear-gradient(135deg,#00C48C,#00A878)',color:'#fff',border:'none',borderRadius:12,fontSize:15.5,fontWeight:700,cursor:loading?'default':'pointer',fontFamily:F,boxShadow:'0 8px 20px rgba(0,196,140,0.35)',transition:'transform 0.15s'}}
+              style={{width:'100%',padding:'14px',background:loading?'#7DD8BC':'linear-gradient(135deg,#FF7A59,#FF5C7A)',color:'#fff',border:'none',borderRadius:12,fontSize:15.5,fontWeight:700,cursor:loading?'default':'pointer',fontFamily:F,boxShadow:'0 8px 20px rgba(23,20,18,0.35)',transition:'transform 0.15s'}}
               onMouseOver={e=>{if(!loading)e.currentTarget.style.transform='translateY(-1px)'}}
               onMouseOut={e=>{e.currentTarget.style.transform='none'}}>
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
 
-          <p style={{textAlign:'center',fontSize:14,color:'#6B7A8F',marginTop:24}}>
+          <p style={{textAlign:'center',fontSize:14,color:'#8A7E76',marginTop:24}}>
             Already have an account?{' '}
-            <Link to="/login" style={{color:'#00A878',fontWeight:700,textDecoration:'none'}}>Sign in</Link>
+            <Link to="/login" style={{color:'#E85D3D',fontWeight:700,textDecoration:'none'}}>Sign in</Link>
           </p>
         </div>
       </div>

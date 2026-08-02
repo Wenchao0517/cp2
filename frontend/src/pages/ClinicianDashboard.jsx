@@ -5,9 +5,11 @@ import useIsMobile from '../hooks/useIsMobile'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 const C = {
-  green:'#00C48C', red:'#FF6B6B', yellow:'#FFB020', blue:'#3B82F6',
-  bg:'#F8FAFB', card:'#FFFFFF', border:'#E8EDF2', text:'#1A2332', muted:'#6B7A8F',
-  low:'#00C48C', moderate:'#FFB020', high:'#FF6B6B', very_high:'#DC2626',
+  green:'#1A1A1A', brand:'#FF7A59', coral:'#FF7A59', red:'#FF6B6B', yellow:'#FFB020', blue:'#3B82F6', purple:'#8B5CF6',
+  bg:'#FDF7F2', card:'#FFFFFF', border:'#F0E6DE', text:'#171412', muted:'#8A7E76',
+  low:'#12B886', moderate:'#FFB020', high:'#FF6B6B', very_high:'#DC2626',
+  shadow:'0 10px 30px rgba(180,140,110,0.10)',
+  shadowLg:'0 18px 45px rgba(180,140,110,0.14)',
 }
 
 const IcoWave   = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -30,7 +32,7 @@ const RiskBadge = ({ level }) => (
 )
 
 const StatCard = ({ label, value, color, icon, sub }) => (
-  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:'20px 22px',transition:'transform 0.15s, box-shadow 0.15s'}}
+  <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:'20px 22px',transition:'transform 0.15s, box-shadow 0.15s'}}
     onMouseOver={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 24px rgba(26,35,50,0.07)'}}
     onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
@@ -208,19 +210,19 @@ export default function ClinicianDashboard() {
 
           <div style={{minWidth:0}}>
             {!selected ? (
-              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:'56px 40px',textAlign:'center',color:C.muted}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:'56px 40px',textAlign:'center',color:C.muted}}>
                 <div style={{color:C.border,marginBottom:12,display:'flex',justifyContent:'center'}}><IcoClick/></div>
                 <h3 style={{fontSize:17,fontWeight:600,color:C.text,margin:'0 0 6px'}}>Select a patient</h3>
                 <p style={{fontSize:13,margin:0}}>Click any patient on the left to view their full profile and health data</p>
               </div>
             ) : loading ? (
-              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:'56px 40px',textAlign:'center',color:C.muted}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:'56px 40px',textAlign:'center',color:C.muted}}>
                 <p style={{fontSize:14}}>Loading patient data...</p>
               </div>
             ) : detail && (
               <div style={{display:'flex',flexDirection:'column',gap:14}}>
 
-                <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                     <div style={{display:'flex',alignItems:'center',gap:14}}>
                       <div style={{width:52,height:52,borderRadius:'50%',background:'#3B82F618',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:C.blue}}>
@@ -252,11 +254,11 @@ export default function ClinicianDashboard() {
                 </div>
 
                 {detailTab==='overview' && detail.assessments?.[0]?.recommendation && (
-                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                  <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
                     <h3 style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:12,display:'flex',alignItems:'center',gap:7}}>
                       <span style={{color:C.yellow}}><IcoBulb/></span> Latest AI Recommendation
                     </h3>
-                    <div style={{fontSize:13,lineHeight:1.85,color:'#374151',background:'#F0FDF8',borderRadius:10,padding:16,borderLeft:'3px solid '+C.green}}>
+                    <div style={{fontSize:13,lineHeight:1.85,color:'#374151',background:'#FFF4EF',borderRadius:10,padding:16,borderLeft:'3px solid '+C.green}}>
                       {detail.assessments[0].recommendation.split('\n').map((line,i) =>
                         line.trim() && <p key={i} style={{margin:'0 0 8px'}}>{line.replace(/\*\*/g,'')}</p>
                       )}
@@ -265,7 +267,7 @@ export default function ClinicianDashboard() {
                 )}
 
                 {detailTab==='chart' && (
-                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                  <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
                       <h3 style={{fontSize:14,fontWeight:700,color:C.text,margin:0}}>📈 Glucose Trend</h3>
                       <div style={{display:'flex',gap:16,fontSize:12,color:C.muted}}>
@@ -293,13 +295,13 @@ export default function ClinicianDashboard() {
                 )}
 
                 {detailTab==='notes' && (
-                  <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+                  <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
                     <h3 style={{fontSize:14,fontWeight:800,color:C.text,marginBottom:14}}>Clinical Notes</h3>
                     <div style={{marginBottom:18}}>
                       <textarea value={noteText} onChange={e=>setNoteText(e.target.value)}
                         placeholder='Write a note or recommendation for this patient...'
                         rows={3}
-                        style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',background:'#FBFDFC'}}/>
+                        style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:13.5,outline:'none',boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',background:'#FFFBF8'}}/>
                       <button onClick={submitNote} disabled={noteSaving||!noteText.trim()}
                         style={{marginTop:10,padding:'9px 22px',background:noteText.trim()?'linear-gradient(135deg,#3B82F6,#2563EB)':'#E8EDF2',color:noteText.trim()?'#fff':'#9CA3AF',border:'none',borderRadius:10,fontSize:13,fontWeight:700,cursor:noteText.trim()?'pointer':'default',fontFamily:'inherit'}}>
                         {noteSaving?'Saving...':'Send to Patient'}
@@ -308,7 +310,7 @@ export default function ClinicianDashboard() {
                     {notes.length===0 ? (
                       <p style={{fontSize:13,color:C.muted,textAlign:'center',padding:'16px 0'}}>No notes yet. Write the first one above.</p>
                     ) : notes.map(n=>(
-                      <div key={n.id} style={{padding:'13px 16px',background:n.sender==='patient'?'#00C48C0A':'#F8FAFB',borderRadius:12,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
+                      <div key={n.id} style={{padding:'13px 16px',background:n.sender==='patient'?'#FF7A590A':'#F8FAFB',borderRadius:12,marginBottom:10,borderLeft:'3px solid '+(n.sender==='patient'?C.green:C.blue)}}>
                         <div style={{fontSize:13.5,color:'#374151',lineHeight:1.7}}>{n.content}</div>
                         <div style={{fontSize:11.5,color:C.muted,marginTop:6,fontWeight:600}}>{n.sender==='patient'?'Patient':'Dr. '+n.doctor_name} · {n.created_at?.slice(0,16).replace('T',' ')}</div>
                       </div>

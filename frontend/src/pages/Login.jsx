@@ -39,16 +39,16 @@ export default function Login() {
 
   const inputStyle = (name) => ({
     width:'100%', padding:'13px 14px 13px 42px', borderRadius:12, fontSize:14.5, fontFamily:F,
-    border:'2px solid ' + (focus===name ? '#00C48C' : '#E8EDF2'),
+    border:'2px solid ' + (focus===name ? '#FF7A59' : '#F0E6DE'),
     outline:'none', boxSizing:'border-box', transition:'border 0.2s, box-shadow 0.2s',
-    boxShadow: focus===name ? '0 0 0 4px #00C48C1A' : 'none', background:'#FBFDFC'
+    boxShadow: focus===name ? '0 0 0 4px #FF7A591A' : 'none', background:'#FFFBF8'
   })
 
   return (
     <div style={{minHeight:'100vh',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',fontFamily:F}}>
 
       {/* Left brand panel */}
-      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#00C48C 0%,#00A878 45%,#047857 100%)',display:isMobile?'none':'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
+      <div style={{position:'relative',overflow:'hidden',background:'linear-gradient(145deg,#FF7A59 0%,#E85D3D 45%,#047857 100%)',display:isMobile?'none':'flex',flexDirection:'column',justifyContent:'center',padding:'0 8%'}}>
         {/* decorative circles */}
         <div style={{position:'absolute',width:420,height:420,borderRadius:'50%',background:'rgba(255,255,255,0.07)',top:-120,right:-120}}/>
         <div style={{position:'absolute',width:280,height:280,borderRadius:'50%',background:'rgba(255,255,255,0.06)',bottom:-80,left:-60}}/>
@@ -90,8 +90,8 @@ export default function Login() {
       {/* Right form panel */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'center',background:'#fff',padding:'40px 24px'}}>
         <div style={{width:'100%',maxWidth:400}}>
-          <h2 style={{fontSize:26,fontWeight:800,color:'#1A2332',margin:'0 0 6px',letterSpacing:'-0.5px'}}>Welcome back</h2>
-          <p style={{fontSize:14,color:'#6B7A8F',margin:'0 0 32px'}}>Sign in to continue to your dashboard</p>
+          <h2 style={{fontSize:26,fontWeight:800,color:'#171412',margin:'0 0 6px',letterSpacing:'-0.5px'}}>Welcome back</h2>
+          <p style={{fontSize:14,color:'#8A7E76',margin:'0 0 32px'}}>Sign in to continue to your dashboard</p>
 
           {error && (
             <div style={{background:'#FEF2F2',border:'1px solid #FECACA',color:'#DC2626',padding:'11px 16px',borderRadius:12,fontSize:13.5,fontWeight:600,marginBottom:20}}>
@@ -102,7 +102,7 @@ export default function Login() {
           <form onSubmit={submit}>
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>EMAIL</label>
             <div style={{position:'relative',marginBottom:20}}>
-              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='email'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoMail/></span>
+              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='email'?'#FF7A59':'#9CA3AF',transition:'color 0.2s'}}><IcoMail/></span>
               <input type="email" required value={form.email}
                 onChange={e=>setForm({...form,email:e.target.value})}
                 onFocus={()=>setFocus('email')} onBlur={()=>setFocus('')}
@@ -111,7 +111,7 @@ export default function Login() {
 
             <label style={{display:'block',fontSize:12.5,fontWeight:700,color:'#374151',marginBottom:7,letterSpacing:'0.2px'}}>PASSWORD</label>
             <div style={{position:'relative',marginBottom:28}}>
-              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='pw'?'#00C48C':'#9CA3AF',transition:'color 0.2s'}}><IcoLock/></span>
+              <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:focus==='pw'?'#FF7A59':'#9CA3AF',transition:'color 0.2s'}}><IcoLock/></span>
               <input type={showPw?'text':'password'} required value={form.password}
                 onChange={e=>setForm({...form,password:e.target.value})}
                 onFocus={()=>setFocus('pw')} onBlur={()=>setFocus('')}
@@ -123,16 +123,16 @@ export default function Login() {
             </div>
 
             <button type="submit" disabled={loading}
-              style={{width:'100%',padding:'14px',background:loading?'#7DD8BC':'linear-gradient(135deg,#00C48C,#00A878)',color:'#fff',border:'none',borderRadius:12,fontSize:15.5,fontWeight:700,cursor:loading?'default':'pointer',fontFamily:F,boxShadow:'0 8px 20px rgba(0,196,140,0.35)',transition:'transform 0.15s, box-shadow 0.15s'}}
-              onMouseOver={e=>{if(!loading){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 12px 26px rgba(0,196,140,0.42)'}}}
-              onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 20px rgba(0,196,140,0.35)'}}>
+              style={{width:'100%',padding:'14px',background:loading?'#7DD8BC':'linear-gradient(135deg,#FF7A59,#FF5C7A)',color:'#fff',border:'none',borderRadius:12,fontSize:15.5,fontWeight:700,cursor:loading?'default':'pointer',fontFamily:F,boxShadow:'0 8px 20px rgba(23,20,18,0.35)',transition:'transform 0.15s, box-shadow 0.15s'}}
+              onMouseOver={e=>{if(!loading){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 12px 26px rgba(23,20,18,0.42)'}}}
+              onMouseOut={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 20px rgba(23,20,18,0.35)'}}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <p style={{textAlign:'center',fontSize:14,color:'#6B7A8F',marginTop:28}}>
+          <p style={{textAlign:'center',fontSize:14,color:'#8A7E76',marginTop:28}}>
             New to DiabetesGuard?{' '}
-            <Link to="/register" style={{color:'#00A878',fontWeight:700,textDecoration:'none'}}>Create an account</Link>
+            <Link to="/register" style={{color:'#E85D3D',fontWeight:700,textDecoration:'none'}}>Create an account</Link>
           </p>
         </div>
       </div>

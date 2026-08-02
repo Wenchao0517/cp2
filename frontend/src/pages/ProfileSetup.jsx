@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext'
 import { patientAPI } from '../api/endpoints'
 
 const C = {
-  green:'#00C48C', blue:'#3B82F6', border:'#E8EDF2',
-  text:'#1A2332', muted:'#6B7A8F', bg:'#F8FAFB', card:'#FFFFFF', red:'#FF6B6B'
+  green:'#1A1A1A', brand:'#FF7A59', coral:'#FF7A59', blue:'#3B82F6', border:'#F0E6DE',
+  text:'#171412', muted:'#8A7E76', bg:'#FDF7F2', card:'#FFFFFF', red:'#FF6B6B',
+  shadow:'0 10px 30px rgba(180,140,110,0.10)',
+  shadowLg:'0 18px 45px rgba(180,140,110,0.14)',
 }
 
 const IcoWave    = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -115,7 +117,7 @@ export default function ProfileSetup() {
 
       <nav style={{background:C.card,borderBottom:'1px solid '+C.border,padding:'0 32px',height:62,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:100}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <div style={{width:34,height:34,borderRadius:9,background:'linear-gradient(135deg,#00C48C,#00A070)',display:'flex',alignItems:'center',justifyContent:'center'}}><IcoWave/></div>
+          <div style={{width:34,height:34,borderRadius:9,background:'linear-gradient(135deg,#FF7A59,#00A070)',display:'flex',alignItems:'center',justifyContent:'center'}}><IcoWave/></div>
           <span style={{fontWeight:700,fontSize:17,color:C.text}}>DiabetesGuard</span>
         </div>
         <div style={{display:'flex',gap:10}}>
@@ -133,14 +135,14 @@ export default function ProfileSetup() {
         </div>
 
         {saved && (
-          <div style={{background:'#F0FDF8',border:'1px solid #86EFAC',color:C.green,padding:'10px 16px',borderRadius:10,marginBottom:18,fontSize:13,fontWeight:600,display:'flex',alignItems:'center',gap:8}}>
+          <div style={{background:'#FFF4EF',border:'1px solid #86EFAC',color:C.green,padding:'10px 16px',borderRadius:10,marginBottom:18,fontSize:13,fontWeight:600,display:'flex',alignItems:'center',gap:8}}>
             <IcoCheck/> Profile saved successfully
           </div>
         )}
 
         <form onSubmit={handleSave} style={{display:'flex',flexDirection:'column',gap:16}}>
 
-          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
             <SectionHeader icon={<IcoUser/>} title="Personal Information" subtitle="Basic demographic details"/>
 
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
@@ -155,7 +157,7 @@ export default function ProfileSetup() {
                   {['male','female','other'].map(v=>(
                     <button key={v} type="button" onClick={()=>setForm({...form,gender:v})}
                       style={{padding:'9px 4px',border:'1.5px solid '+(form.gender===v?C.green:C.border),borderRadius:8,
-                        background:form.gender===v?'#F0FDF8':'transparent',color:form.gender===v?C.green:C.muted,
+                        background:form.gender===v?'#FFF4EF':'transparent',color:form.gender===v?C.green:C.muted,
                         fontWeight:600,fontSize:12,cursor:'pointer',textTransform:'capitalize'}}>
                       {v}
                     </button>
@@ -165,7 +167,7 @@ export default function ProfileSetup() {
             </div>
           </div>
 
-          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
             <SectionHeader icon={<IcoActivity/>} title="Body Measurements" subtitle="Used to calculate BMI for risk assessment"/>
 
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:16}}>
@@ -196,7 +198,7 @@ export default function ProfileSetup() {
             )}
           </div>
 
-          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:22}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:22}}>
             <SectionHeader icon={<IcoHeart/>} title="Medical History" subtitle="These factors significantly affect diabetes risk prediction"/>
 
             <Toggle label="High Blood Pressure" hint="Diagnosed with hypertension by a doctor"
@@ -211,7 +213,7 @@ export default function ProfileSetup() {
               value={form.physical_activity} onChange={v=>setForm({...form,physical_activity:v})}/>
           </div>
 
-          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:18,padding:24,marginBottom:16}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,boxShadow:C.shadow,borderRadius:22,padding:24,marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
               <div style={{width:40,height:40,borderRadius:11,background:'#3B82F614',display:'flex',alignItems:'center',justifyContent:'center',color:'#3B82F6'}}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -222,7 +224,7 @@ export default function ProfileSetup() {
               </div>
             </div>
             <select value={doctorId} onChange={e=>setDoctorId(e.target.value)}
-              style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit',background:'#FBFDFC',cursor:'pointer'}}>
+              style={{width:'100%',padding:'12px 14px',border:'2px solid '+C.border,borderRadius:12,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit',background:'#FFFBF8',cursor:'pointer'}}>
               <option value="">-- No doctor selected --</option>
               {doctors.map(d=>(
                 <option key={d.id} value={d.id}>Dr. {d.full_name}</option>
@@ -231,7 +233,7 @@ export default function ProfileSetup() {
           </div>
           <div style={{display:'flex',gap:12}}>
             <button type="submit" disabled={saving}
-              style={{flex:1,padding:'13px',background:'linear-gradient(135deg,#00C48C,#00A070)',color:'#fff',border:'none',borderRadius:11,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,fontFamily:'inherit'}}>
+              style={{flex:1,padding:'13px',background:'linear-gradient(135deg,#FF7A59,#00A070)',color:'#fff',border:'none',borderRadius:11,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,fontFamily:'inherit'}}>
               {saving ? 'Saving...' : 'Save Profile'}
             </button>
             <button type="button" onClick={()=>navigate('/dashboard')}
