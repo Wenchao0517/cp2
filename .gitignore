@@ -31,3 +31,5 @@ frontend/dist/
 Thumbs.db
 
 backend/.env
+
+backend/.env
