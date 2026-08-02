@@ -1,4 +1,4 @@
-# DiabetesGuard
+﻿# DiabetesGuard
 
 **A Web-Based Diabetes Risk Assessment and Glucose Monitoring Platform**
 
@@ -54,7 +54,7 @@ GROQ_API_KEY=your_groq_api_key_here
 The trained ML artifacts (model, calibrator, SHAP explainer inputs) must be present in `backend/ml/`. They are included in the repository. To retrain from scratch, run the training script **from the repository root** (path discipline matters — the script resolves paths relative to the root):
 
 ```bash
-python train_model.py
+python notebooks/train_v2.py
 ```
 
 Start the backend from the `backend/` directory:
@@ -161,7 +161,7 @@ cp2/
 ├── frontend/
 │   ├── src/               # React components and pages
 │   └── ...
-└── train_model.py         # ML training pipeline (run from repo root)
+└── notebooks/             # ML training scripts (train_v2.py) and data
 ```
 
 ---
@@ -172,3 +172,4 @@ cp2/
 - The ML model is trained and evaluated on a public benchmark dataset; the reported AUC (0.977) reflects performance on that dataset, not clinical validation.
 - Model artifacts are saved and must be loaded with `joblib` (not `pickle`).
 - If the Groq key is missing or invalid, the system automatically serves rule-based recommendations (~130 ms) instead of LLM recommendations (~700 ms end-to-end).
+
